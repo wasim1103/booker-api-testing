@@ -1,0 +1,67 @@
+[
+  {
+    "description": "No filters",
+    "params": {},
+    "expected_status": 200
+  },
+  {
+    "description": "Individual filter",
+    "params": {"firstname": "Test"},
+    "expected_status": 200
+  },
+  {
+    "description": "Individual filter",
+    "params": {"checkin": "2025-09-10"},
+    "expected_status": 200
+  },
+  {
+    "description": "Individual filter",
+    "params": {"checkout": "2025-09-11"},
+    "expected_status": 200
+  },
+  {
+    "description": "Multiple filters",
+    "params": {"lastname": "User", "checkin": "2025-09-10", "checkout": "2025-09-11"},
+    "expected_status": 200
+  }, 
+  {
+    "description": "Invalid Value Format In filter",
+    "params": {"checkin": "13-03-2014", "checkout": "21-05-2014"},
+    "expected_status": 400
+  },
+  {
+    "description": "Invalid Value Format In filter",
+    "params": {"checkin": "sally", "checkout": "kelly"},
+    "expected_status": 400
+  }, 
+  {
+    "description": "Invalid Value Format In filter",
+    "params": {"firstname": 123456},
+    "expected_status": 400
+  },
+  {
+    "description": "Invalid Value Format In filter",
+    "params": {"firstname": "!@#$%^&*()"},
+    "expected_status": 400
+  },
+  {
+    "description": "Invalid Value Format In filter",
+    "params": {"lastname": "<script>alert(1)</script>"},
+    "expected_status": 200
+  },
+  {
+    "description": "Invalid Value Format In filter",
+    "params": {"firstname": "' OR '1'='1"},
+    "expected_status": 200
+  },
+  {
+    "description": "Invalid Value Format In filter",
+    "params": {"lastname": "'; DROP TABLE bookings;--"},
+    "expected_status": 200
+  },
+  {
+    "description": "Invalid Value Format In filter",
+    "params": {"unknown": "Unknown parameter"},
+    "expected_status": 500
+  }
+]
