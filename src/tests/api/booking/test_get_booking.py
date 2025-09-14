@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 from tests.api.utils.booking_helper import validate_booking_by_id
 
-# Load test data from JSON
+# Load test data's from JSON
 with open("resources/test-data/filters.json") as f:
     filter_data = json.load(f)
 
