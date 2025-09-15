@@ -30,3 +30,17 @@ def validate_booking_by_id(api_client, booking_data, expected_params):
 
     print(f"\nBooking {booking_id} validated successfully against filter")
     return booking
+
+
+def get_bookings(api_client, filters=None):
+    """
+    Retrieve booking IDs with optional filters.
+    Example filters: {"firstname": "Test", "lastname": "User"}
+    """
+    params = filters or {}
+    response = api_client.get("/booking", params=params)
+    assert response.status_code == 200, f"Failed to retrieve bookings: {response.text}"
+
+    booking_ids = [item["bookingid"] for item in response.json()]
+    print(f"\nRetrieved {len(booking_ids)} booking(s) with filters {params}: {booking_ids}")
+    return booking_ids    

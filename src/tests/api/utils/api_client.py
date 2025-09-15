@@ -2,7 +2,7 @@
 import requests
 
 class ApiClient:
-    def __init__(self, base_url, auth_token=None):  # add auth_token here
+    def __init__(self, base_url, auth_token=None):
         self.base_url = base_url
         self.auth_token = auth_token
 

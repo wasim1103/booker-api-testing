@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">booker-api-testing-report.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">booker-api-testing-report.html</h1>
+    <p>Report generated on 15-Sep-2025 at 14:44:21 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.1.1</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</th>
+        </tr>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left"><</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">></div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">14 tests took 00:00:30.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" />
+            <span class="failed">7 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" />
+            <span class="passed">7 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled/>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled/>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled/>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled/>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled/>
+            <span class="rerun">0 Reruns</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  </body>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.12.3&#34;, &#34;Platform&#34;: &#34;Windows-10-10.0.19045-SP0&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;8.3.5&#34;, &#34;pluggy&#34;: &#34;1.5.0&#34;}, &#34;Plugins&#34;: {&#34;Faker&#34;: &#34;37.1.0&#34;, &#34;html&#34;: &#34;4.1.1&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;}}, &#34;tests&#34;: {&#34;src/tests/api/booking/test_get_booking.py::test_Retrieve_all_booking_IDs_without_filters[data0]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Retrieve_all_booking_IDs_without_filters[data0]&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Retrieve_all_booking_IDs_without_filters[data0]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\nHealthcheck passed: 201\n\nBooking created successfully: {\n  &amp;quot;bookingid&amp;quot;: 1701,\n  &amp;quot;booking&amp;quot;: {\n    &amp;quot;firstname&amp;quot;: &amp;quot;Test&amp;quot;,\n    &amp;quot;lastname&amp;quot;: &amp;quot;User&amp;quot;,\n    &amp;quot;totalprice&amp;quot;: 111,\n    &amp;quot;depositpaid&amp;quot;: true,\n    &amp;quot;bookingdates&amp;quot;: {\n      &amp;quot;checkin&amp;quot;: &amp;quot;2025-09-10&amp;quot;,\n      &amp;quot;checkout&amp;quot;: &amp;quot;2025-09-11&amp;quot;\n    },\n    &amp;quot;additionalneeds&amp;quot;: &amp;quot;Breakfast&amp;quot;\n  }\n}\n\n----------------------------- Captured stdout call -----------------------------\nFound booking IDs: [1476, 1463, 679, 824, 1269, 1521, 1236, 1297, 305, 1077, 67, 1283, 711, 125, 218, 518, 863, 156, 607, 1395, 1266, 883, 1367, 181, 274, 587, 819, 45, 1214, 1218, 1223, 1337, 1372, 1097, 1018, 1621, 639, 514, 1174, 1591, 726, 246, 713, 1221, 107, 725, 427, 119, 1313, 1540, 558, 1436, 1673, 1590, 1557, 4, 1509, 940, 1066, 353, 344, 439, 1187, 1663, 1067, 160, 589, 1268, 849, 1167, 431, 808, 1230, 1286, 1607, 693, 1135, 918, 369, 1122, 1700, 207, 14, 102, 81, 161, 258, 49, 137, 529, 338, 762, 130, 788, 837, 316, 1164, 1685, 1664, 484, 1599, 203, 1027, 124, 1178, 30, 1527, 889, 263, 1249, 146, 1278, 1643, 1456, 212, 532, 1075, 357, 358, 1093, 1647, 136, 1499, 1031, 795, 1400, 1137, 633, 169, 1322, 424, 390, 770, 1216, 678, 563, 1625, 701, 55, 112, 1581, 924, 1675, 796, 540, 214, 1680, 23, 851, 1076, 980, 329, 1033, 870, 768, 727, 1237, 897, 1010, 1488, 1370, 1457, 583, 834, 1477, 293, 111, 925, 538, 1045, 1189, 1674, 1138, 1125, 1306, 1586, 1634, 1424, 430, 992, 801, 1552, 666, 1676, 899, 590, 1233, 1538, 99, 1705, 943, 1055, 491, 1704, 1028, 1401, 1564, 301, 508, 324, 27, 68, 999, 1261, 470, 494, 43, 41, 864, 1314, 40, 1114, 219, 1635, 994, 1570, 268, 1000, 606, 665, 1273, 1386, 86, 1205, 1142, 1465, 26, 1658, 433, 798, 302, 1505, 1227, 199, 635, 592, 624, 1587, 1418, 37, 1191, 1443, 1347, 1344, 979, 1655, 90, 1180, 566, 410, 1021, 59, 1184, 1336, 328, 1412, 273, 1594, 234, 250, 939, 1245, 1413, 1320, 654, 1200, 1201, 323, 914, 1128, 257, 1462, 1209, 1309, 1402, 1469, 1506, 1225, 1186, 818, 1166, 1288, 686, 313, 208, 157, 73, 807, 632, 571, 1588, 1387, 1583, 1528, 259, 1388, 148, 879, 969, 845, 1497, 1165, 170, 799, 441, 797, 1482, 659, 1373, 1670, 1096, 1224, 499, 1661, 1397, 1328, 436, 1192, 584, 1455, 340, 987, 308, 391, 505, 1569, 1632, 1474, 399, 852, 1555, 227, 1592, 133, 8, 1301, 777, 332, 1267, 172, 802, 1361, 469, 455, 493, 551, 1253, 483, 700, 1335, 528, 385, 618, 1403, 1316, 881, 1329, 784, 1181, 475, 216, 906, 51, 1512, 232, 6, 247, 966, 1662, 1105, 383, 600, 1543, 1339, 251, 511, 1340, 1305, 1626, 244, 773, 933, 895, 1143, 61, 1154, 781, 1147, 337, 715, 131, 1061, 869, 221, 92, 672, 655, 406, 705, 901, 64, 1568, 779, 1319, 269, 1195, 1275, 1108, 1005, 1099, 1362, 1419, 1172, 226, 444, 1525, 228, 1615, 955, 764, 366, 774, 945, 1693, 291, 350, 1212, 836, 1, 1279, 1158, 414, 690, 1084, 709, 209, 733, 5, 787, 388, 785, 738, 1688, 1025, 1508, 1507, 492, 1393, 569, 562, 627, 575, 1251, 1645, 123, 756, 1359, 741, 415, 1481, 553, 1054, 1292, 570, 1445, 48, 1198, 1331, 748, 544, 611, 460, 461, 1523, 1239, 744, 657, 1437, 1544, 233, 1063, 190, 1622, 1015, 629, 855, 185, 1584, 1595, 1250, 28, 446, 857, 164, 283, 17, 1537, 142, 1392, 1550, 506, 1354, 1145, 202, 205, 641, 359, 403, 194, 1032, 931, 804, 310, 36, 523, 1707, 1687, 434, 1228, 752, 1514, 1653, 638, 1601, 1516, 1024, 719, 792, 1567, 916, 1235, 605, 1060, 134, 522, 920, 220, 1668, 1519, 2, 673, 1575, 651, 187, 617, 1500, 1619, 1162, 1475, 211, 1208, 539, 272, 574, 38, 622, 1549, 714, 397, 981, 188, 907, 1633, 647, 44, 706, 991, 319, 423, 976, 442, 352, 1556, 106, 184, 287, 1002, 1052, 501, 1650, 882, 961, 1330, 448, 658, 485, 985, 813, 321, 1284, 306, 1352, 331, 646, 842, 120, 437, 1503, 79, 1701, 1530, 760, 626, 1121, 1449, 1294, 546, 1379, 1079, 521, 534, 478, 362, 1272, 1452, 481, 371, 597, 1640, 835, 330, 1334, 993, 31, 21, 147, 1146, 1109, 242, 1282, 1573, 315, 712, 496, 35, 953, 1134, 1323, 94, 1092, 1202, 1127, 1493, 596, 292, 683, 121, 902, 739, 581, 997, 988, 1697, 652, 24, 848, 1321, 179, 1074, 573, 1517, 1068, 681, 926, 911, 885, 368, 502, 139, 1234, 1496, 862, 1242, 215, 83, 1112, 771, 50, 1470, 12, 466, 1086, 1171, 298, 1627, 413, 1034, 963, 960, 1374, 660, 1466, 152, 63, 692, 664, 1408, 806, 153, 33, 608, 266, 138, 280, 886, 375, 290, 355, 1472, 193, 866, 1048, 376, 117, 812, 783, 440, 171, 1610, 964, 76, 451, 1646, 1534, 1072, 454, 669, 288, 1057, 66, 108, 591, 602, 759, 1220, 1011, 1498, 1098, 52, 473, 53, 520, 1131, 20, 1631, 910, 343, 1256, 860, 456, 861, 1623, 778, 1073, 811, 1616, 594, 1151, 474, 281, 70, 140, 828, 872, 13, 555, 1260, 843, 1577, 827, 833, 1409, 1641, 296, 1656, 1255, 1262, 791, 1563, 1425, 1219, 109, 1377, 742, 1062, 970, 500, 7, 88, 1448, 1324, 1041, 175, 1380, 670, 346, 948, 1124, 628, 517, 1085, 732, 1037, 1535, 876, 1678, 304, 1432, 1485, 927, 320, 567, 1345, 716, 1356, 1046, 196, 236, 182, 576, 407, 87, 894, 1307, 1454, 965, 113, 1414, 1103, 735, 1082, 25, 235, 1406, 620, 1039, 1385, 1280, 240, 675, 464, 154, 687, 1159, 252, 392, 471, 765, 1364, 1161, 299, 1539, 1638, 1132, 417, 858, 1123, 405, 16, 22, 893, 82, 1580, 1303, 1290, 1252, 917, 1407, 1106, 1169, 1156, 1698, 1531, 1102, 973, 640, 871, 1630, 1484, 1177, 1546, 986, 1644, 1371, 1111, 277, 1353, 97, 10, 80, 1686, 101, 1317, 1150, 1022, 224, 29, 165, 294, 947, 463, 949, 585, 891, 163, 1001, 749, 162, 253, 89, 75, 908, 1009, 386, 271, 545, 559, 614, 728, 698, 982, 636, 826, 820, 486, 757, 1451, 1649, 615, 507, 750, 704, 696, 42, 1486, 1532, 1047, 93, 69, 339, 1338, 379, 286, 888, 1439, 72, 946, 467, 1657, 1016, 729, 110, 60, 1391, 1579, 265, 1422, 256, 1421, 684, 1677, 1442, 535, 1211, 1420, 1365, 1492, 1136, 723, 1194, 47, 100, 1119, 720, 372, 1460, 381, 1368, 1446, 1206, 694, 400, 421, 34, 892, 649, 104, 1038, 1183, 1287, 428, 1349, 394, 956, 1051, 1679, 1358, 810, 1558, 238, 85, 913, 378, 279, 1248, 1308, 512, 1702, 1293, 1348, 278, 1378, 745, 1083, 854, 98, 3, 126, 904, 643, 1153, 457, 676, 767, 751, 1263, 577, 398, 932, 201, 15, 630, 1231, 382, 1545, 1604, 838, 616, 145, 977, 322, 1605, 844, 1398, 115, 314, 1310, 1691, 533, 389, 1415, 365, 229, 1431, 1613, 547, 1479, 450, 458, 1050, 707, 54, 699, 477, 662, 349, 95, 930, 515, 1504, 1019, 878, 1058, 689, 373, 128, 1602, 1522, 241, 968, 1243, 1012, 1667, 262, 1490, 1204, 736, 1461, 1669, 62, 77, 1148, 334, 829, 422, 1491, 1611, 1394, 1430, 542, 1170, 178, 307, 1091, 1608, 1030, 489, 151, 197, 825, 1618, 1471, 794, 447, 200, 526, 1276, 1692, 1433, 998, 347, 821, 1090, 967, 1069, 815, 873, 746, 974, 1298, 603, 915, 1118, 18, 11, 550, 612, 9, 548, 722, 556, 1438, 565, 1694, 1597, 776, 936, 1295, 1561, 1565, 74, 1197, 644, 176, 189, 1042, 1551, 356, 1574, 1139, 937, 408, 554, 1302, 942, 877, 1003, 1562, 1423, 363, 404, 527, 958, 951, 1113, 1652, 418, 1244, 599, 1383, 482]\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;firstname&#39;: &#39;Test&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;firstname&#39;: &#39;Test&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;firstname&#39;: &#39;Test&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\n\nRetrieved 3 booking(s) with filters {&amp;#x27;firstname&amp;#x27;: &amp;#x27;Test&amp;#x27;}: [1499, 1701, 1531]\n\nBooking retrieved successfully: {\n  &amp;quot;firstname&amp;quot;: &amp;quot;Test&amp;quot;,\n  &amp;quot;lastname&amp;quot;: &amp;quot;User&amp;quot;,\n  &amp;quot;totalprice&amp;quot;: 111,\n  &amp;quot;depositpaid&amp;quot;: true,\n  &amp;quot;bookingdates&amp;quot;: {\n    &amp;quot;checkin&amp;quot;: &amp;quot;2025-09-10&amp;quot;,\n    &amp;quot;checkout&amp;quot;: &amp;quot;2025-09-11&amp;quot;\n  },\n  &amp;quot;additionalneeds&amp;quot;: &amp;quot;Breakfast&amp;quot;\n}\n\nBooking 1701 validated successfully against filter\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;checkin&#39;: &#39;2025-09-10&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;checkin&#39;: &#39;2025-09-10&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;checkin&#39;: &#39;2025-09-10&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;src\\tests\\api\\booking\\test_get_booking.py:38: in test_by_applying_single_filters\n    assert create_test_booking[&amp;quot;bookingid&amp;quot;] in ids\nE   assert 1701 in [590, 967]\n\n----------------------------- Captured stdout call -----------------------------\n\nRetrieved 2 booking(s) with filters {&amp;#x27;checkin&amp;#x27;: &amp;#x27;2025-09-10&amp;#x27;}: [590, 967]\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;checkout&#39;: &#39;2025-09-11&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;checkout&#39;: &#39;2025-09-11&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_by_applying_single_filters[Individual filter-{&#39;checkout&#39;: &#39;2025-09-11&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\n\nRetrieved 1220 booking(s) with filters {&amp;#x27;checkout&amp;#x27;: &amp;#x27;2025-09-11&amp;#x27;}: [1476, 1463, 1733, 679, 824, 1269, 1521, 1236, 1297, 305, 1077, 67, 1283, 711, 125, 218, 518, 863, 1764, 156, 607, 1395, 1266, 883, 1367, 181, 274, 587, 819, 45, 1214, 1218, 1223, 1337, 1372, 1097, 1018, 1621, 639, 514, 1174, 1591, 1708, 726, 246, 713, 1221, 107, 725, 427, 119, 1313, 1540, 558, 1436, 1673, 1590, 1557, 4, 1509, 940, 1066, 353, 344, 439, 1187, 1663, 1067, 160, 589, 1268, 849, 1167, 431, 808, 1230, 1286, 1607, 693, 1135, 918, 369, 1122, 1700, 207, 14, 102, 81, 161, 258, 49, 137, 529, 338, 762, 130, 788, 837, 316, 1164, 1685, 1664, 484, 1599, 203, 1027, 124, 1178, 30, 1527, 889, 263, 1249, 146, 1278, 1643, 1456, 212, 532, 1075, 357, 358, 1093, 1647, 136, 1499, 1031, 795, 1400, 1137, 633, 169, 1322, 424, 390, 770, 1216, 678, 563, 1625, 701, 55, 112, 1581, 924, 1675, 796, 540, 214, 1680, 23, 851, 1076, 980, 329, 1033, 870, 768, 727, 1237, 897, 1010, 1488, 1370, 1457, 583, 834, 1477, 293, 111, 1714, 925, 538, 1045, 1189, 1674, 1138, 1725, 1125, 1306, 1586, 1634, 1424, 430, 992, 801, 1552, 666, 1676, 899, 1233, 1538, 99, 1705, 943, 1055, 491, 1704, 1028, 1401, 1564, 301, 508, 324, 27, 68, 1752, 999, 1261, 470, 494, 43, 41, 864, 1314, 40, 1114, 219, 1635, 994, 1570, 268, 1000, 606, 665, 1273, 1386, 86, 1205, 1142, 1465, 26, 1658, 433, 798, 302, 1505, 1227, 199, 635, 592, 624, 1723, 1587, 1418, 37, 1191, 1443, 1347, 1344, 979, 1655, 90, 1180, 566, 410, 1021, 59, 1184, 1336, 328, 1412, 273, 1594, 234, 250, 939, 1245, 1413, 1320, 654, 1200, 1201, 323, 914, 1128, 257, 1462, 1209, 1309, 1402, 1469, 1506, 1225, 1186, 818, 1166, 1288, 686, 313, 1735, 208, 1729, 157, 73, 807, 632, 571, 1762, 1588, 1387, 1583, 1528, 259, 1388, 148, 879, 969, 845, 1497, 1165, 170, 799, 441, 797, 1482, 659, 1373, 1670, 1096, 1224, 499, 1661, 1397, 1328, 1743, 436, 1192, 584, 1455, 340, 987, 308, 391, 505, 1569, 1632, 1474, 399, 852, 1555, 227, 1592, 133, 8, 1301, 777, 332, 1267, 172, 802, 1361, 469, 455, 493, 551, 1253, 483, 700, 1335, 528, 385, 618, 1403, 1316, 881, 1329, 784, 1181, 475, 216, 906, 51, 1512, 232, 6, 247, 966, 1662, 1105, 383, 600, 1543, 1339, 251, 511, 1759, 1340, 1305, 1626, 244, 773, 933, 895, 1143, 61, 1154, 1738, 781, 1147, 337, 715, 131, 1061, 869, 221, 92, 672, 655, 406, 705, 901, 64, 1568, 779, 1319, 269, 1195, 1275, 1108, 1005, 1099, 1362, 1419, 1172, 226, 444, 1525, 228, 1712, 1615, 955, 764, 366, 774, 945, 1693, 291, 350, 1212, 836, 1, 1279, 1158, 414, 690, 1084, 709, 209, 733, 5, 787, 388, 785, 738, 1688, 1025, 1508, 1507, 492, 1393, 569, 562, 627, 575, 1251, 1645, 123, 756, 1359, 741, 415, 1481, 553, 1054, 1292, 570, 1445, 1749, 48, 1198, 1331, 748, 544, 611, 1724, 460, 461, 1523, 1239, 744, 657, 1437, 1544, 233, 1063, 190, 1622, 1015, 629, 855, 185, 1584, 1595, 1250, 28, 446, 857, 164, 283, 17, 1537, 142, 1392, 1550, 506, 1354, 1145, 202, 205, 641, 359, 403, 194, 1032, 931, 804, 310, 36, 523, 1707, 1687, 434, 1228, 752, 1719, 1514, 1653, 638, 1601, 1516, 1024, 719, 1730, 792, 1567, 916, 1235, 605, 1060, 134, 522, 920, 220, 1668, 1519, 2, 673, 1575, 651, 187, 617, 1500, 1619, 1162, 1475, 211, 1208, 539, 272, 574, 38, 622, 1549, 714, 397, 981, 188, 907, 1633, 647, 44, 706, 991, 319, 423, 976, 442, 352, 1556, 106, 184, 1763, 287, 1002, 1052, 501, 1650, 882, 961, 1330, 448, 658, 485, 985, 813, 321, 1284, 306, 1352, 331, 646, 842, 120, 437, 1503, 79, 1701, 1530, 760, 626, 1121, 1449, 1294, 546, 1379, 1079, 521, 534, 478, 362, 1272, 1452, 481, 371, 597, 1640, 835, 330, 1334, 993, 31, 21, 147, 1146, 1109, 242, 1282, 1573, 315, 712, 496, 35, 953, 1134, 1323, 94, 1092, 1202, 1127, 1493, 596, 292, 683, 121, 902, 739, 581, 997, 988, 1747, 1697, 652, 24, 848, 1321, 179, 1074, 1722, 573, 1517, 1068, 681, 926, 911, 885, 368, 502, 139, 1234, 1496, 862, 1242, 215, 83, 1112, 771, 50, 1470, 12, 466, 1086, 1171, 298, 1627, 413, 1034, 963, 960, 1731, 1374, 660, 1466, 152, 63, 692, 664, 1737, 1408, 806, 153, 33, 608, 266, 138, 1711, 280, 886, 375, 290, 355, 1472, 193, 866, 1048, 376, 117, 812, 783, 440, 171, 1610, 964, 76, 451, 1646, 1534, 1072, 454, 669, 288, 1057, 66, 108, 591, 602, 759, 1220, 1011, 1498, 1746, 1098, 52, 1741, 473, 53, 520, 1131, 20, 1631, 1740, 910, 343, 1256, 860, 456, 861, 1623, 778, 1073, 811, 1616, 594, 1151, 1742, 474, 281, 70, 140, 828, 872, 13, 555, 1260, 843, 1577, 827, 833, 1409, 1641, 296, 1656, 1255, 1262, 791, 1563, 1425, 1219, 109, 1377, 742, 1062, 970, 500, 7, 88, 1448, 1324, 1041, 175, 1380, 670, 346, 948, 1124, 628, 517, 1085, 732, 1037, 1748, 1535, 876, 1678, 304, 1432, 1485, 927, 320, 567, 1345, 716, 1356, 1046, 196, 236, 182, 576, 407, 87, 894, 1307, 1454, 965, 113, 1414, 1103, 735, 1082, 25, 235, 1406, 1727, 620, 1039, 1385, 1280, 240, 675, 464, 154, 687, 1159, 252, 392, 1732, 471, 765, 1364, 1161, 299, 1539, 1638, 1132, 417, 858, 1123, 405, 16, 22, 893, 82, 1580, 1303, 1290, 1252, 917, 1407, 1106, 1169, 1156, 1698, 1531, 1102, 973, 640, 871, 1630, 1484, 1177, 1546, 986, 1644, 1371, 1111, 277, 1353, 97, 10, 80, 1686, 101, 1317, 1150, 1022, 224, 29, 165, 294, 947, 463, 949, 585, 891, 163, 1001, 749, 162, 253, 89, 75, 908, 1009, 386, 271, 545, 559, 614, 728, 698, 982, 636, 826, 820, 486, 757, 1451, 1649, 615, 507, 750, 704, 696, 42, 1486, 1532, 1047, 1758, 93, 69, 339, 1338, 379, 286, 888, 1439, 72, 946, 467, 1657, 1016, 729, 110, 60, 1391, 1579, 265, 1422, 256, 1421, 684, 1677, 1442, 535, 1718, 1211, 1420, 1365, 1492, 1136, 723, 1194, 47, 100, 1119, 720, 372, 1460, 381, 1368, 1446, 1206, 694, 400, 1717, 421, 34, 892, 649, 104, 1038, 1183, 1287, 428, 1349, 394, 956, 1051, 1679, 1358, 810, 1558, 238, 85, 913, 378, 279, 1248, 1308, 512, 1702, 1293, 1348, 278, 1378, 745, 1083, 854, 98, 3, 126, 904, 643, 1153, 457, 676, 767, 751, 1263, 577, 398, 932, 201, 15, 630, 1231, 382, 1545, 1604, 838, 616, 145, 977, 322, 1605, 844, 1398, 115, 314, 1310, 1691, 533, 389, 1415, 365, 229, 1431, 1613, 547, 1479, 450, 458, 1050, 707, 54, 699, 477, 662, 349, 95, 930, 515, 1504, 1710, 1019, 878, 1716, 1058, 689, 373, 128, 1602, 1522, 241, 968, 1243, 1012, 1667, 262, 1490, 1204, 736, 1461, 1669, 62, 1760, 77, 1148, 334, 829, 422, 1491, 1611, 1394, 1430, 542, 1170, 178, 307, 1091, 1608, 1030, 489, 151, 1753, 197, 825, 1618, 1761, 1471, 794, 447, 200, 526, 1276, 1692, 1433, 1755, 998, 347, 821, 1090, 1069, 815, 873, 746, 974, 1298, 603, 915, 1118, 18, 11, 550, 1754, 612, 9, 548, 722, 556, 1438, 565, 1694, 1597, 776, 936, 1295, 1561, 1565, 74, 1197, 644, 176, 189, 1042, 1551, 356, 1574, 1139, 937, 408, 554, 1302, 942, 877, 1003, 1562, 1423, 363, 404, 527, 958, 951, 1113, 1652, 418, 1244, 599, 1383, 482]\n\nBooking retrieved successfully: {\n  &amp;quot;firstname&amp;quot;: &amp;quot;Test&amp;quot;,\n  &amp;quot;lastname&amp;quot;: &amp;quot;User&amp;quot;,\n  &amp;quot;totalprice&amp;quot;: 111,\n  &amp;quot;depositpaid&amp;quot;: true,\n  &amp;quot;bookingdates&amp;quot;: {\n    &amp;quot;checkin&amp;quot;: &amp;quot;2025-09-10&amp;quot;,\n    &amp;quot;checkout&amp;quot;: &amp;quot;2025-09-11&amp;quot;\n  },\n  &amp;quot;additionalneeds&amp;quot;: &amp;quot;Breakfast&amp;quot;\n}\n\nBooking 1701 validated successfully against filter\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_by_applying_multiple_filters[Multiple filters-{&#39;lastname&#39;: &#39;User&#39;, &#39;checkin&#39;: &#39;2025-09-10&#39;, &#39;checkout&#39;: &#39;2025-09-11&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_by_applying_multiple_filters[Multiple filters-{&#39;lastname&#39;: &#39;User&#39;, &#39;checkin&#39;: &#39;2025-09-10&#39;, &#39;checkout&#39;: &#39;2025-09-11&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_by_applying_multiple_filters[Multiple filters-{&#39;lastname&#39;: &#39;User&#39;, &#39;checkin&#39;: &#39;2025-09-10&#39;, &#39;checkout&#39;: &#39;2025-09-11&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;src\\tests\\api\\booking\\test_get_booking.py:55: in test_by_applying_multiple_filters\n    assert create_test_booking[&amp;quot;bookingid&amp;quot;] in ids\nE   assert 1701 in []\n\n----------------------------- Captured stdout call -----------------------------\n\nRetrieved 0 booking(s) with filters {&amp;#x27;lastname&amp;#x27;: &amp;#x27;User&amp;#x27;, &amp;#x27;checkin&amp;#x27;: &amp;#x27;2025-09-10&amp;#x27;, &amp;#x27;checkout&amp;#x27;: &amp;#x27;2025-09-11&amp;#x27;}: []\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;checkin&#39;: &#39;13-03-2014&#39;, &#39;checkout&#39;: &#39;21-05-2014&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;checkin&#39;: &#39;13-03-2014&#39;, &#39;checkout&#39;: &#39;21-05-2014&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;checkin&#39;: &#39;13-03-2014&#39;, &#39;checkout&#39;: &#39;21-05-2014&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;src\\tests\\api\\booking\\test_get_booking.py:73: in test_Validate_error_handling\n    assert response.status_code == data[&amp;quot;expected_status&amp;quot;]\nE   assert 500 == 400\nE    +  where 500 = &amp;lt;Response [500]&amp;gt;.status_code\n\n----------------------------- Captured stdout call -----------------------------\n\nRequest: GET /booking, params={&amp;#x27;checkin&amp;#x27;: &amp;#x27;13-03-2014&amp;#x27;, &amp;#x27;checkout&amp;#x27;: &amp;#x27;21-05-2014&amp;#x27;}\nResponse status: 500\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;checkin&#39;: &#39;sally&#39;, &#39;checkout&#39;: &#39;kelly&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;checkin&#39;: &#39;sally&#39;, &#39;checkout&#39;: &#39;kelly&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;checkin&#39;: &#39;sally&#39;, &#39;checkout&#39;: &#39;kelly&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;src\\tests\\api\\booking\\test_get_booking.py:73: in test_Validate_error_handling\n    assert response.status_code == data[&amp;quot;expected_status&amp;quot;]\nE   assert 500 == 400\nE    +  where 500 = &amp;lt;Response [500]&amp;gt;.status_code\n\n----------------------------- Captured stdout call -----------------------------\n\nRequest: GET /booking, params={&amp;#x27;checkin&amp;#x27;: &amp;#x27;sally&amp;#x27;, &amp;#x27;checkout&amp;#x27;: &amp;#x27;kelly&amp;#x27;}\nResponse status: 500\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: 123456}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: 123456}]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: 123456}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;src\\tests\\api\\booking\\test_get_booking.py:73: in test_Validate_error_handling\n    assert response.status_code == data[&amp;quot;expected_status&amp;quot;]\nE   assert 200 == 400\nE    +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\n----------------------------- Captured stdout call -----------------------------\n\nRequest: GET /booking, params={&amp;#x27;firstname&amp;#x27;: 123456}\nResponse status: 200\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: &#39;!@#$%^&amp;*()&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: &#39;!@#$%^&amp;*()&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: &#39;!@#$%^&amp;*()&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;src\\tests\\api\\booking\\test_get_booking.py:73: in test_Validate_error_handling\n    assert response.status_code == data[&amp;quot;expected_status&amp;quot;]\nE   assert 200 == 400\nE    +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\n----------------------------- Captured stdout call -----------------------------\n\nRequest: GET /booking, params={&amp;#x27;firstname&amp;#x27;: &amp;#x27;!@#$%^&amp;amp;*()&amp;#x27;}\nResponse status: 200\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;lastname&#39;: &#39;&lt;script&gt;alert(1)&lt;/script&gt;&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;lastname&#39;: &#39;&lt;script&gt;alert(1)&lt;/script&gt;&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;lastname&#39;: &#39;&lt;script&gt;alert(1)&lt;/script&gt;&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\n\nRequest: GET /booking, params={&amp;#x27;lastname&amp;#x27;: &amp;#x27;&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;&amp;#x27;}\nResponse status: 200\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: \&#34;&#39; OR &#39;1&#39;=&#39;1\&#34;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: \&#34;&#39; OR &#39;1&#39;=&#39;1\&#34;}]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;firstname&#39;: \&#34;&#39; OR &#39;1&#39;=&#39;1\&#34;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\n\nRequest: GET /booking, params={&amp;#x27;firstname&amp;#x27;: &amp;quot;&amp;#x27; OR &amp;#x27;1&amp;#x27;=&amp;#x27;1&amp;quot;}\nResponse status: 200\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;lastname&#39;: \&#34;&#39;; DROP TABLE bookings;--\&#34;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;lastname&#39;: \&#34;&#39;; DROP TABLE bookings;--\&#34;}]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;lastname&#39;: \&#34;&#39;; DROP TABLE bookings;--\&#34;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\n\nRequest: GET /booking, params={&amp;#x27;lastname&amp;#x27;: &amp;quot;&amp;#x27;; DROP TABLE bookings;--&amp;quot;}\nResponse status: 200\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;unknown&#39;: &#39;Unknown parameter&#39;}]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;unknown&#39;: &#39;Unknown parameter&#39;}]&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_Validate_error_handling[Invalid Value Format In filter-{&#39;unknown&#39;: &#39;Unknown parameter&#39;}]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;src\\tests\\api\\booking\\test_get_booking.py:73: in test_Validate_error_handling\n    assert response.status_code == data[&amp;quot;expected_status&amp;quot;]\nE   assert 200 == 500\nE    +  where 200 = &amp;lt;Response [200]&amp;gt;.status_code\n\n----------------------------- Captured stdout call -----------------------------\n\nRequest: GET /booking, params={&amp;#x27;unknown&amp;#x27;: &amp;#x27;Unknown parameter&amp;#x27;}\nResponse status: 200\n&#34;}], &#34;src/tests/api/booking/test_get_booking.py::test_get_booking_performance&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;src/tests/api/booking/test_get_booking.py::test_get_booking_performance&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;src/tests/api/booking/test_get_booking.py::test_get_booking_performance&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;----------------------------- Captured stdout call -----------------------------\n\nPerformance test: GET /booking (no filters)\nResponse status: 200, Time taken: 1.50s\n&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;booker-api-testing-report.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > td')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > td')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+</html>
