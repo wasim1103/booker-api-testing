@@ -21,5 +21,8 @@ class ApiClient:
     def patch(self, endpoint, data=None):
         return requests.patch(f"{self.base_url}{endpoint}", headers=self._headers(), json=data)
 
-    def delete(self, endpoint):
-        return requests.delete(f"{self.base_url}{endpoint}", headers=self._headers())
+    def delete(self, endpoint, headers=None):
+        final_headers = self._headers()
+        if headers:  # merge custom headers (e.g., invalid/missing auth)
+            final_headers.update(headers)
+        return requests.delete(f"{self.base_url}{endpoint}", headers=final_headers)

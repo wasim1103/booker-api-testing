@@ -1,7 +1,6 @@
 import pytest
 import json
 import time
-# from datetime import datetime
 from tests.api.utils.booking_helper import validate_booking_by_id, get_bookings
 
 # Load test data's from JSON
