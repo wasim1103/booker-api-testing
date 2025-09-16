@@ -3,4 +3,3 @@ requests
 pytest-html
 pytest-xdist
 pytest-rerunfailures
-allure-pytest
