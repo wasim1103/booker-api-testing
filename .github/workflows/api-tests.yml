@@ -23,16 +23,24 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest-rerunfailures  # optional if using rerun plugin
 
-      - name: Run pytest
+      - name: Run full pytest suite
         run: |
           mkdir -p reports
-          pytest
+          pytest --html=reports/booker-api-testing-report.html --self-contained-html --cache-clear
         continue-on-error: true
 
-      - name: Upload HTML report
+      - name: Retry only failed tests
+        run: |
+          pytest --last-failed --html=reports/booker-api-testing-report-retry.html --self-contained-html
+        continue-on-error: true
+
+      - name: Upload HTML reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pytest-report
-          path: reports/booker-api-testing-report.html
+          name: pytest-reports
+          path: |
+            reports/booker-api-testing-report.html
+            reports/booker-api-testing-report-retry.html
