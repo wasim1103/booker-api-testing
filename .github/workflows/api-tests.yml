@@ -23,17 +23,29 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest-rerunfailures  # optional if using rerun plugin
 
       - name: Run full pytest suite
         run: |
           mkdir -p reports
-          pytest --html=reports/booker-api-testing-report.html --self-contained-html --cache-clear
+          mkdir -p allure-results
+          pytest --html=reports/booker-api-testing-report.html \
+                 --self-contained-html \
+                 --alluredir=allure-results \
+                 --cache-clear
         continue-on-error: true
 
       - name: Retry only failed tests
         run: |
-          pytest --last-failed --html=reports/booker-api-testing-report-retry.html --self-contained-html
+          pytest --last-failed \
+                 --html=reports/booker-api-testing-report-retry.html \
+                 --self-contained-html \
+                 --alluredir=allure-results
+        continue-on-error: true
+
+      - name: Generate Allure HTML report
+        run: |
+          mkdir -p reports/allure-html
+          allure generate allure-results --clean -o reports/allure-html
         continue-on-error: true
 
       - name: Upload HTML reports
@@ -44,3 +56,10 @@ jobs:
           path: |
             reports/booker-api-testing-report.html
             reports/booker-api-testing-report-retry.html
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: reports/allure-html
