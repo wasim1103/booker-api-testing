@@ -13,7 +13,6 @@ with open("resources/test-data/filters.json") as f:
 @pytest.mark.parametrize("data", [d for d in filter_data if d["description"] == "No filters"])
 def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_booking, data):
     response = api_client.get("/booking")
-
     assert response.status_code == 200
     booking_ids = response.json()
 
@@ -21,6 +20,8 @@ def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_bookin
     assert len(booking_ids) > 0, f"Response is having zero booking"
 
     ids = [item["bookingid"] for item in booking_ids]
+    # Check that every bookingid is a number
+    assert all(isinstance(bid, int) for bid in ids), f"Not all booking IDs are numbers: {ids}"
     print(f"Found booking IDs: {ids}")
 
     assert create_test_booking["bookingid"] in ids, f"Booking ID{create_test_booking["bookingid"]} not found"
