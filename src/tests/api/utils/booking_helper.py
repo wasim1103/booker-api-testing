@@ -44,3 +44,21 @@ def get_bookings(api_client, filters=None):
     booking_ids = [item["bookingid"] for item in response.json()]
     print(f"\nRetrieved {len(booking_ids)} booking(s) with filters {params}: {booking_ids}")
     return booking_ids    
+
+
+def validate_updated_fields(updated: dict, payload: dict):
+    """Ensure payload fields are correctly updated in booking."""
+    for key, value in payload.items():
+        if key == "bookingdates":
+            assert isinstance(updated["bookingdates"], dict), "'bookingdates' should be an object"
+            assert updated["bookingdates"]["checkin"] == value["checkin"]
+            assert updated["bookingdates"]["checkout"] == value["checkout"]
+        else:
+            assert updated[key] == value, f"Field {key} not updated correctly"
+
+def validate_unchanged_fields(original: dict, updated: dict, exclude: list):
+    """Ensure all fields except 'exclude' remain unchanged."""
+    for key, value in original.items():
+        if key in exclude:
+            continue
+        assert updated[key] == value, f"Field {key} unexpectedly changed"
