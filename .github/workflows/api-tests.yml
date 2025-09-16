@@ -42,6 +42,12 @@ jobs:
                  --alluredir=allure-results
         continue-on-error: true
 
+      - name: Install Allure CLI
+        run: |
+          sudo apt-add-repository ppa:qameta/allure -y
+          sudo apt-get update
+          sudo apt-get install allure -y
+
       - name: Generate Allure HTML report
         run: |
           mkdir -p reports/allure-html
