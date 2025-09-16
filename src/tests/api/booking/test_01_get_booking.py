@@ -23,7 +23,7 @@ def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_bookin
     assert all(isinstance(bid, int) for bid in ids), f"Not all booking IDs are numbers: {ids}"
     print(f"Found booking IDs: {ids}")
 
-    assert create_test_booking["bookingid"] in ids, f"Booking ID{create_test_booking["bookingid"]} not found"
+    assert create_test_booking["bookingid"] in ids, f"Booking ID{create_test_booking['bookingid']} not found"
 
 
 @pytest.mark.parametrize(
