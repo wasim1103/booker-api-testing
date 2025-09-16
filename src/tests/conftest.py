@@ -23,13 +23,11 @@ def api_client(config, auth_token):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def check_health(api_client):
-    """
-    Runs before any tests to verify API health.
-    Stops test session if healthcheck fails.
-    """
+def check_health(config):
+    """Runs before any tests to verify API health."""
+    tmp_client = ApiClient(base_url=config["base_url"])  # no auth needed for /ping
     for _ in range(3):
-        response = api_client.get("/ping")
+        response = tmp_client.get("/ping")
         if response.status_code == 201:
             print(f"\nHealthcheck passed: {response.status_code}")
             return
@@ -37,7 +35,7 @@ def check_health(api_client):
     pytest.fail("API healthcheck failed after 3 retries!")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def create_test_booking(api_client):
     payload = {
         "firstname": "Test",
