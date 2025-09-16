@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import time
 
 def validate_booking_by_id(api_client, booking_data, expected_params):
     """
@@ -62,3 +63,21 @@ def validate_unchanged_fields(original: dict, updated: dict, exclude: list):
         if key in exclude:
             continue
         assert updated[key] == value, f"Field {key} unexpectedly changed"
+
+
+def wait_for_booking(api_client, booking_id, timeout=10, interval=0.5):
+    """
+    Polls the server until the booking exists or timeout is reached.
+    :param api_client: your ApiClient instance
+    :param booking_id: booking ID to check
+    :param timeout: maximum time to wait (seconds)
+    :param interval: poll interval (seconds)
+    :return: True if booking exists, else False
+    """
+    end_time = time.time() + timeout
+    while time.time() < end_time:
+        response = api_client.get(f"/booking/{booking_id}")
+        if response.status_code == 200:
+            return True
+        time.sleep(interval)
+    return False
