@@ -1,13 +1,17 @@
 import pytest
 import json
 import time
+import requests
 from tests.api.utils.api_client import ApiClient
 from tests.api.utils.auth_helper import AuthenticationHelper
+from tests.api.utils.booking_data_builder import BookingDataBuilder
+
 
 @pytest.fixture(scope="session")
 def config():
     with open("resources/config/config.json") as f:
         return json.load(f)
+
 
 @pytest.fixture(scope="session")
 def auth_token(config):
@@ -17,6 +21,7 @@ def auth_token(config):
         config["password"]
     )
 
+
 @pytest.fixture(scope="session")
 def api_client(config, auth_token):
     return ApiClient(base_url=config["base_url"], auth_token=auth_token)
@@ -25,7 +30,8 @@ def api_client(config, auth_token):
 @pytest.fixture(scope="session", autouse=True)
 def check_health(config):
     """Runs before any tests to verify API health."""
-    tmp_client = ApiClient(base_url=config["base_url"])  # no auth needed for /ping
+    tmp_client = ApiClient(
+        base_url=config["base_url"])  # no auth needed for /ping
     for _ in range(3):
         response = tmp_client.get("/ping")
         if response.status_code == 201:
@@ -36,23 +42,19 @@ def check_health(config):
 
 
 @pytest.fixture(scope="function")
-def create_test_booking(api_client):
-    payload = {
-        "firstname": "Test",
-        "lastname": "User",
-        "totalprice": 111,
-        "depositpaid": True,
-        "bookingdates": {
-            "checkin": "2025-09-10",
-            "checkout": "2025-09-11"
-        },
-        "additionalneeds": "Breakfast"
-    }
-    response = api_client.post("/booking", data=payload)
-    assert response.status_code == 200, f"Booking creation failed: {response.text}"
-    
-    booking_data = response.json()
-    # booking_id = booking_data["bookingid"]
-    print(f"\nBooking created successfully: {json.dumps(booking_data, indent=2)}")
-    return booking_data
-    
+def create_test_booking(api_client, request):
+    """
+    Creates a single booking dynamically with default BookingDataBuilder values.
+    Returns a list with created booking info: booking ID and full payload.
+    """
+    # Build booking payload using defaults
+    booking_data = BookingDataBuilder().build()
+
+    # Create booking on server
+    response = api_client.post("/booking", json=booking_data)
+    response.raise_for_status()
+    booking_id = response.json()["bookingid"]
+
+    created_bookings = [{"bookingid": booking_id, "data": booking_data}]
+    print(f"\nBooking created: ID={booking_id}, payload={booking_data}")
+    return created_bookings

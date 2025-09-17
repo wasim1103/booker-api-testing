@@ -14,7 +14,9 @@ with open("resources/test-data/update_payloads.json") as f:
     ids=lambda d: f"{d['description']}-{d['payload']}"
 )
 def test_individual_field_update_with_type_validation(api_client, create_test_booking, data):
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
+
     payload = data["payload"]
 
     # Fetch original booking for debug/logging
@@ -22,7 +24,7 @@ def test_individual_field_update_with_type_validation(api_client, create_test_bo
     print("Original booking:\n", json.dumps(original, indent=2))
 
     # Perform PATCH update
-    response = api_client.patch(f"/booking/{booking_id}", data=payload)
+    response = api_client.patch(f"/booking/{booking_id}", json=payload)
     assert response.status_code == data["expected_status"], f"Unexpected status {response.status_code}"
 
     updated = response.json()
@@ -54,13 +56,15 @@ def test_individual_field_update_with_type_validation(api_client, create_test_bo
     ids=lambda d: f"{d['description']}-{d['payload']}"
 )
 def test_multiple_fields_get_updated(api_client, create_test_booking, data):
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
+    
     payload = data["payload"]
 
     original = api_client.get(f"/booking/{booking_id}").json()
     print("Original booking:\n", json.dumps(original, indent=2))
 
-    response = api_client.patch(f"/booking/{booking_id}", data=payload)
+    response = api_client.patch(f"/booking/{booking_id}", json=payload)
     assert response.status_code == data["expected_status"]
 
     updated = api_client.get(f"/booking/{booking_id}").json()
@@ -71,7 +75,8 @@ def test_multiple_fields_get_updated(api_client, create_test_booking, data):
   
 
 def test_non_updated_field_remains_unchanged(api_client, create_test_booking):
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
 
     # Get original booking
     original = api_client.get(f"/booking/{booking_id}").json()
@@ -79,7 +84,7 @@ def test_non_updated_field_remains_unchanged(api_client, create_test_booking):
 
     # Update only firstname
     payload = {"firstname": "CheckUnchanged"}
-    response = api_client.patch(f"/booking/{booking_id}", data=payload)
+    response = api_client.patch(f"/booking/{booking_id}", json=payload)
     assert response.status_code == 200
 
     updated = response.json()
@@ -90,15 +95,16 @@ def test_non_updated_field_remains_unchanged(api_client, create_test_booking):
 
     # non-updated field should remain same
     validate_unchanged_fields(original, updated, exclude=["firstname"])
-        
 
+        
 @pytest.mark.parametrize(
     "data",
     [d for d in update_data if d["description"] == "Invalid Value Format In Update"],
     ids=lambda d: f"{d['description']}-{d['payload']}"
 )
 def test_validate_error_handling(api_client, create_test_booking, data):
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
     endpoint_id = data.get("invalid_id", booking_id)
 
     # Handle missing auth
@@ -108,7 +114,7 @@ def test_validate_error_handling(api_client, create_test_booking, data):
     else:
         client = api_client
 
-    response = client.patch(f"/booking/{endpoint_id}", data=data["payload"])
+    response = client.patch(f"/booking/{endpoint_id}", json=data["payload"])
     print("Booking ID:", endpoint_id)
     print("Payload sent:", data["payload"])
     print("Status:", response.status_code)
@@ -122,16 +128,17 @@ def test_validate_error_handling(api_client, create_test_booking, data):
     ids=lambda d: f"{d['description']}-{d['payload']}"
 )
 def test_idempotency_of_updates(api_client, create_test_booking, data):
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
     payload = data["payload"]
 
-    first = api_client.patch(f"/booking/{booking_id}", data=payload)
+    first = api_client.patch(f"/booking/{booking_id}", json=payload)
     print("Booking ID:", booking_id)
     print("Payload sent:", payload)
     print("First Update status:", first.status_code)
     print("First Update Text:", first.text)
 
-    second = api_client.patch(f"/booking/{booking_id}", data=payload)   
+    second = api_client.patch(f"/booking/{booking_id}", json=payload)   
     print("Second Update status:", second.status_code)
     print("Second Update Text:", second.text)
 

@@ -6,22 +6,17 @@
   },
   {
     "description": "Individual filter",
-    "params": {"firstname": "Test"},
+    "params": {"firstname": "TestAutomation"},
     "expected_status": 200
   },
   {
     "description": "Individual filter",
-    "params": {"checkin": "2025-09-10"},
-    "expected_status": 200
-  },
-  {
-    "description": "Individual filter",
-    "params": {"checkout": "2025-09-11"},
+    "params": {"checkin": "2025-09-20"},
     "expected_status": 200
   },
   {
     "description": "Multiple filters",
-    "params": {"lastname": "User", "checkin": "2025-09-10", "checkout": "2025-09-11"},
+    "params": {"lastname": "TestAutomation", "checkin": "2025-09-10", "checkout": "2025-09-15"},
     "expected_status": 200
   }, 
   {

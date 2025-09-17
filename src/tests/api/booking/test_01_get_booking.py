@@ -1,7 +1,7 @@
 import pytest
 import json
 import time
-from tests.api.utils.booking_helper import validate_booking_by_id, get_bookings
+from tests.api.utils.booking_helper import wait_for_booking, validate_booking_by_id, get_bookings
 
 # Load test data's from JSON
 with open("resources/test-data/filters.json") as f:
@@ -20,10 +20,12 @@ def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_bookin
 
     ids = [item["bookingid"] for item in booking_ids]
     # Check that every bookingid is a number
-    assert all(isinstance(bid, int) for bid in ids), f"Not all booking IDs are numbers: {ids}"
+    assert all(isinstance(bid, int)
+               for bid in ids), f"Not all booking IDs are numbers: {ids}"
     print(f"Found booking IDs: {ids}")
 
-    assert create_test_booking["bookingid"] in ids, f"Booking ID{create_test_booking['bookingid']} not found"
+    for booking in create_test_booking:
+        assert booking["bookingid"] in ids
 
 
 @pytest.mark.parametrize(
@@ -33,31 +35,40 @@ def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_bookin
 )
 def test_by_applying_single_filters(api_client, create_test_booking, data):
     """Test Individual filters by applying firstname, lastname, checkin, checkout"""
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]    
+
     # 1. Validate ID presence with GET /booking (filtered)
     ids = get_bookings(api_client, data["params"])
-    assert create_test_booking["bookingid"] in ids
+    assert booking_id in ids, f"Booking {booking_id} not returned by API filter {data['params']}"
 
     # 2. Validate payload with GET /booking/{id}
-    validate_booking_by_id(api_client, create_test_booking, data["params"])
-    
-    
+    validate_booking_by_id(api_client, booking, data["params"])
+
+
 @pytest.mark.parametrize(
     "data",
     [d for d in filter_data if d["description"] == "Multiple filters"],
     ids=lambda d: f"{d['description']}-{d['params']}"
 )
 def test_by_applying_multiple_filters(api_client, create_test_booking, data):
-    """Test Multiple filters by firstname, lastname, checkin, checkout"""    
-    ids = get_bookings(api_client, data["params"])
-    assert create_test_booking["bookingid"] in ids
+    """Test Multiple filters by firstname, lastname, checkin, checkout"""
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
 
-    validate_booking_by_id(api_client, create_test_booking, data["params"])
+    # 1. Validate ID presence with GET /booking (filtered)
+    ids = get_bookings(api_client, data["params"])
+    assert booking_id in ids, f"Booking {booking_id} not returned by API filter {data['params']}"
+
+    # 2. Validate payload with GET /booking/{id}
+    validate_booking_by_id(api_client, booking, data["params"])
 
 
 @pytest.mark.parametrize(
-        "data", 
-        [d for d in filter_data if d["description"] == "Invalid Value Format In filter"], 
-        ids=lambda d: f"{d['description']}-{d['params']}"
+    "data",
+    [d for d in filter_data if d["description"]
+     == "Invalid Value Format In filter"],
+    ids=lambda d: f"{d['description']}-{d['params']}"
 )
 def test_Validate_error_handling(api_client, data):
     """Test invalid filters return proper error responses"""
@@ -70,6 +81,7 @@ def test_Validate_error_handling(api_client, data):
     assert response.status_code == data["expected_status"]
 
 
+
 def test_get_booking_performance(api_client):
     """Basic performance validation: Response time < 2 seconds"""
     start = time.time()
@@ -77,7 +89,8 @@ def test_get_booking_performance(api_client):
     elapsed = time.time() - start
 
     print("\nPerformance test: GET /booking (no filters)")
-    print(f"Response status: {response.status_code}, Time taken: {elapsed:.2f}s")
+    print(
+        f"Response status: {response.status_code}, Time taken: {elapsed:.2f}s")
 
     assert response.status_code == 200
     assert elapsed < 2

@@ -1,10 +1,11 @@
 import pytest
-from tests.api.utils.booking_helper import wait_for_booking
+#from tests.api.utils.booking_helper import wait_for_booking
 
 
 def test_successful_delete_and_verify(api_client, create_test_booking):
     """Successfully delete existing booking and verify GET returns 404"""
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
 
     # Delete the booking
     response = api_client.delete(f"/booking/{booking_id}")
@@ -39,7 +40,8 @@ def test_delete_non_existent_booking(api_client, invalid_id):
     ids=["invalid-auth", "missing-auth"],
 )
 def test_delete_with_invalid_auth(api_client, create_test_booking, auth_header):
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
 
     response = api_client.delete(f"/booking/{booking_id}", headers=auth_header)
     print(f"Delete Response with auth {auth_header}: {response.status_code}, {response.text}")
@@ -50,7 +52,8 @@ def test_delete_with_invalid_auth(api_client, create_test_booking, auth_header):
 
 def test_idempotent_delete(api_client, create_test_booking):
     """Deleting same booking twice should result in 201 then 404"""
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
 
     first = api_client.delete(f"/booking/{booking_id}")
     print("First delete:", first.status_code, first.text)
@@ -63,7 +66,8 @@ def test_idempotent_delete(api_client, create_test_booking):
 
 def test_concurrent_delete(api_client, create_test_booking):
     """Concurrent deletion should be handled gracefully"""
-    booking_id = create_test_booking["bookingid"]
+    for booking in create_test_booking:
+        booking_id = booking["bookingid"]
         
     # # Wait until booking is visible on server
     # if not wait_for_booking(api_client, booking_id):
