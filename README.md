@@ -1,7 +1,16 @@
-Booker API Testing
-Description
+📘 Booker API Testing
+
 This project is a test automation framework built using Python, Pytest, and Requests to validate the Restful Booker API.
-It covers unit-level validations, integration tests, and end-to-end booking lifecycle scenarios (Create → Update → Verify → Delete), ensuring the API behaves as expected.
+
+It covers:
+
+Unit-level validations
+
+Integration tests
+
+End-to-end booking lifecycle scenarios (Create → Update → Verify → Delete)
+
+Ensuring the API behaves as expected in different conditions.
 
 Features:
 ✅ Health check validation for API availability
