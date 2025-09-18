@@ -10,18 +10,12 @@ It covers:
 Ensuring the API behaves as expected in different conditions.
 
 ✨ Features
-
-✅ Health check validation for API availability
-
-✅ CRUD operation tests for /booking endpoint
-
-✅ Filtering with single & multiple parameters
-
-✅ Retry logic to handle API latency & flaky tests
-
-✅ End-to-end lifecycle validation (Create → Update → Verify → Delete)
-
-✅ HTML and JUnit style reports for CI/CD integration
+  ✅ Health check validation for API availability
+  ✅ CRUD operation tests for /booking endpoint
+  ✅ Filtering with single & multiple parameters
+  ✅ Retry logic to handle API latency & flaky tests
+  ✅ End-to-end lifecycle validation (Create → Update → Verify → Delete)
+  ✅ HTML and JUnit style reports for CI/CD integration
 
 ## Project Structure
 
