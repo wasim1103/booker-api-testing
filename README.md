@@ -6,6 +6,7 @@ It covers:
 - Unit-level validations
 - Integration tests
 - End-to-end booking lifecycle scenarios (Create → Update → Verify → Delete)
+
 Ensuring the API behaves as expected in different conditions.
 
 Features:
