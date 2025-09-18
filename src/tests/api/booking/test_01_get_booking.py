@@ -1,7 +1,7 @@
 import pytest
 import json
 import time
-from tests.api.utils.booking_helper import validate_booking_by_id, get_bookings
+from tests.api.utils.booking_helper import find_matching_bookings, validate_booking_by_id, get_bookings
 
 # Load test data's from JSON
 with open("resources/test-data/filters.json") as f:
@@ -53,8 +53,10 @@ def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_bookin
 def test_by_applying_single_filters(api_client, create_test_booking, data):
     """Test Individual filters by applying firstname, lastname, checkin, checkout"""
     # Loop through dynamically created bookings for this test session
-    for booking in create_test_booking:
-        booking_id = booking["bookingid"]
+    # for booking in create_test_booking:
+    #     booking_id = booking["bookingid"]
+    booking_to_test = find_matching_bookings(create_test_booking, data["params"])
+    booking_id = booking_to_test["bookingid"]
 
     # Validate that the filtered GET /booking call returns the expected booking ID
     # get_bookings is a helper function that returns a list of IDs matching the filter params
@@ -63,13 +65,12 @@ def test_by_applying_single_filters(api_client, create_test_booking, data):
 
     # Validate that the payload returned by GET /booking/{id} matches the expected booking data
     # Validate_booking_by_id is a helper function that performs field-level validations
-    validate_booking_by_id(api_client, booking, data["params"])
+    validate_booking_by_id(api_client, booking_to_test, data["params"])
+
 
 # Parametrize test using filter data where description is "Multiple filters"
 # Each entry represents a combination of filters applied together, e.g., firstname + lastname
 # The ids lambda ensures each test case in reports clearly shows which filter combination is being tested
-
-
 @pytest.mark.parametrize(
     "data",
     [d for d in filter_data if d["description"] == "Multiple filters"],
@@ -78,8 +79,8 @@ def test_by_applying_single_filters(api_client, create_test_booking, data):
 def test_by_applying_multiple_filters(api_client, create_test_booking, data):
     """Test Multiple filters by firstname, lastname, checkin, checkout"""
     # Loop through dynamically created bookings for this test session
-    for booking in create_test_booking:
-        booking_id = booking["bookingid"]
+    booking_to_test = find_matching_bookings(create_test_booking, data["params"])
+    booking_id = booking_to_test["bookingid"]
 
     # Validate that the filtered GET /booking call returns the expected booking ID
     # get_bookings is a helper function that queries the API with multiple filter params
@@ -88,7 +89,7 @@ def test_by_applying_multiple_filters(api_client, create_test_booking, data):
 
     # Validate that the payload returned by GET /booking/{id} matches the expected booking data
     # validate_booking_by_id checks the field-level data to ensure it matches what was created
-    validate_booking_by_id(api_client, booking, data["params"])
+    validate_booking_by_id(api_client, booking_to_test, data["params"])
 
 
 # Parametrize test using filter data where description is "Invalid Value Format In filter"

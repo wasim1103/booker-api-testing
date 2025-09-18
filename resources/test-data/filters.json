@@ -2,61 +2,73 @@
   {
     "description": "No filters",
     "params": {},
-    "expected_status": 200
+    "expected_status": 200,
+    "valid": false 
   },
   {
     "description": "Individual filter",
     "params": {"firstname": "TestAutomation"},
-    "expected_status": 200
+    "expected_status": 200,
+    "valid": true
   },
   {
     "description": "Individual filter",
     "params": {"checkin": "2025-09-20"},
-    "expected_status": 200
+    "expected_status": 200,
+    "valid": true
   },
   {
     "description": "Multiple filters",
     "params": {"lastname": "TestAutomation", "checkin": "2025-09-10", "checkout": "2025-09-15"},
-    "expected_status": 200
+    "expected_status": 200,
+    "valid": true
   }, 
   {
     "description": "Invalid Value Format In filter",
     "params": {"checkin": "13-03-2014", "checkout": "21-05-2014"},
-    "expected_status": 400
+    "expected_status": 400,
+    "valid": false
   },
   {
     "description": "Invalid Value Format In filter",
     "params": {"checkin": "sally", "checkout": "kelly"},
-    "expected_status": 400
+    "expected_status": 400,
+    "valid": false
   }, 
   {
     "description": "Invalid Value Format In filter",
     "params": {"firstname": 123456},
-    "expected_status": 400
+    "expected_status": 400,
+    "valid": false
   },
   {
     "description": "Invalid Value Format In filter",
     "params": {"firstname": "!@#$%^&*()"},
-    "expected_status": 400
+    "expected_status": 400,
+    "valid": false
   },
   {
     "description": "Invalid Value Format In filter",
     "params": {"lastname": "<script>alert(1)</script>"},
-    "expected_status": 200
+    "expected_status": 200,
+    "valid": false
   },
   {
     "description": "Invalid Value Format In filter",
     "params": {"firstname": "' OR '1'='1"},
-    "expected_status": 200
+    "expected_status": 200,
+    "valid": false
   },
   {
     "description": "Invalid Value Format In filter",
     "params": {"lastname": "'; DROP TABLE bookings;--"},
-    "expected_status": 200
+    "expected_status": 200,
+    "valid": false
   },
   {
     "description": "Invalid Value Format In filter",
     "params": {"unknown": "Unknown parameter"},
-    "expected_status": 500
+    "expected_status": 500,
+    "valid": false
   }
 ]

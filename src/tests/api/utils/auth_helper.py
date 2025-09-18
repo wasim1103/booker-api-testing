@@ -1,7 +1,7 @@
 import requests
 
 class AuthenticationHelper:
-    @staticmethod
+    @staticmethod    
     def get_token(base_url, username, password):
         url = f"{base_url}/auth"
         payload = {"username": username, "password": password}

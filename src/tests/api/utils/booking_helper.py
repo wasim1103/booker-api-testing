@@ -98,3 +98,27 @@ def wait_for_booking(api_client, booking_id, timeout=10, interval=0.5):
             return True
         time.sleep(interval)
     return False
+
+
+def find_matching_bookings(registry, filter_params):
+    """
+    Returns the first booking from the registry that matches the filter parameters.
+    Raises ValueError if no booking matches.
+    """
+    for booking in registry:
+        payload = booking["data"]
+        match = True
+        for key, value in filter_params.items():
+            if key in ["checkin", "checkout"]:
+                if payload["bookingdates"].get(key) != value:
+                    match = False
+                    break
+            else:
+                if payload.get(key) != value:
+                    match = False
+                    break
+        if match:
+            return booking  # return first matching booking
+
+    # No match found
+    raise ValueError(f"No booking in registry matches filter {filter_params}")

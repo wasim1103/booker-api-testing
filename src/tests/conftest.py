@@ -56,25 +56,88 @@ def check_health(config):
     pytest.fail("API healthcheck failed after 3 retries!")
 
 
-@pytest.fixture(scope="function")
-def create_test_booking(api_client, request):
+@pytest.fixture(scope="session")
+def create_test_booking(booking_registry):
     """
     Creates a single booking dynamically with default BookingDataBuilder values.
     Returns a list with created booking info: booking ID and full payload.
     """
-    # Build booking payload using defaults
-    booking_data = BookingDataBuilder().build()
 
-    # Create booking on server
-    response = api_client.post("/booking", json=booking_data)
-    response.raise_for_status()
+    """Alias to booking_registry for backward compatibility."""
+    return booking_registry
+    # # Build booking payload using defaults
+    # booking_data = BookingDataBuilder().build()
 
-    # Extract booking ID from API response
-    booking_id = response.json()["bookingid"]
+    # # Create booking on server
+    # response = api_client.post("/booking", json=booking_data)
+    # response.raise_for_status()
 
-    # Store created booking info (ID + original payload) for test usage
-    created_bookings = [{"bookingid": booking_id, "data": booking_data}]
+    # # Extract booking ID from API response
+    # booking_id = response.json()["bookingid"]
 
-    # Log created booking details for debugging / test traceability
-    print(f"\nBooking created: ID={booking_id}, payload={booking_data}")
-    return created_bookings
+    # # Store created booking info (ID + original payload) for test usage
+    # created_bookings = [{"bookingid": booking_id, "data": booking_data}]
+
+    # # Log created booking details for debugging / test traceability
+    # print(f"\nBooking created: ID={booking_id}, payload={booking_data}")
+    
+    # # Yield to the test
+    # yield created_bookings
+
+    ############################################
+
+    # # Cleanup: delete booking after test
+    # delete_response = api_client.delete(
+    #     f"/booking/{booking_id}",
+    #     headers={"Cookie": f"token={auth_token}"}
+    # )
+    # if delete_response.status_code == 201:
+    #     print(f"Booking {booking_id} deleted successfully after test.")
+    # else:
+    #     print(f"Failed to delete booking {booking_id}. Status: {delete_response.status_code}, Response: {delete_response.text}")
+
+
+
+@pytest.fixture(scope="session")
+def booking_registry(api_client, auth_token):
+    """
+    Creates all valid bookings from filters.json at session start,
+    stores them in a registry for test use, and deletes them at session teardown.
+    """
+    # Load filters.json
+    with open("resources/test-data/filters.json") as f:
+        filters = json.load(f)
+
+    registry = []
+
+    # Create bookings for valid=true filters
+    for entry in filters:
+        if entry.get("valid", False):
+            params = entry.get("params", {})
+            booking_payload = BookingDataBuilder(params).build()
+
+            # POST booking
+            response = api_client.post("/booking", json=booking_payload)
+            response.raise_for_status()
+            booking_id = response.json()["bookingid"]
+
+            registry.append({"bookingid": booking_id, "data": booking_payload})
+            print(f"Booking created: ID={booking_id}, params={params}")
+
+    # Yield the registry to tests
+    yield registry
+
+    # Teardown: delete all created bookings
+    for booking in registry:
+        booking_id = booking["bookingid"]
+        delete_response = api_client.delete(
+            f"/booking/{booking_id}",
+            headers={"Cookie": f"token={auth_token}"}
+        )
+        if delete_response.status_code == 201:
+            print(f"Booking {booking_id} deleted successfully.")
+        else:
+            print(
+                f"Failed to delete booking {booking_id}. "
+                f"Status: {delete_response.status_code}, Response: {delete_response.text}"
+            )

@@ -1,40 +1,54 @@
+from faker import Faker
+from datetime import timedelta, datetime
 import random
-import datetime
+
+faker = Faker()
 
 
 class BookingDataBuilder:
-    def __init__(self):
-        # default valid booking data
-        self.firstname = "TestAutomation"
-        self.lastname = "User"
-        self.totalprice = 150
-        self.depositpaid = True
-        self.checkin = "2025-09-20"
-        self.checkout = "2025-09-25"
-        self.additionalneeds = "Breakfast"
+    def __init__(self, params: dict = None):
+        """
+        Initialize booking with dynamic defaults using Faker.
+        If `params` is provided, override defaults with those values.
+        """
+        # Dynamic defaults
+        self.firstname = faker.first_name()
+        self.lastname = faker.last_name()
+        self.totalprice = random.randint(50, 500)
+        self.depositpaid = random.choice([True, False])
 
-    def with_firstname(self, firstname: str):
-        self.firstname = firstname
-        return self
+        # Generate future check-in/check-out dates
+        checkin_date = faker.date_between(start_date="today", end_date="+30d")
+        checkout_date = checkin_date + timedelta(days=random.randint(1, 7))
+        self.checkin = checkin_date.strftime("%Y-%m-%d")
+        self.checkout = checkout_date.strftime("%Y-%m-%d")
 
-    def with_lastname(self, lastname: str):
-        self.lastname = lastname
-        return self
+        self.additionalneeds = random.choice(
+            ["Breakfast", "Lunch", "Dinner", "None"])
 
-    def with_totalprice(self, price: int):
-        self.totalprice = price
-        return self
+        # Override defaults with params from filters.json
+        if params:
+            self._apply_params(params)
 
-    def with_dates(self, checkin: str, checkout: str):
-        self.checkin = checkin
-        self.checkout = checkout
-        return self
-
-    def with_additionalneeds(self, needs: str):
-        self.additionalneeds = needs
-        return self
+    def _apply_params(self, params: dict):
+        """Override defaults with values from filters.json entry"""
+        if "firstname" in params:
+            self.firstname = str(params["firstname"])
+        if "lastname" in params:
+            self.lastname = str(params["lastname"])
+        if "totalprice" in params:
+            self.totalprice = int(params["totalprice"])
+        if "depositpaid" in params:
+            self.depositpaid = bool(params["depositpaid"])
+        if "checkin" in params:
+            self.checkin = str(params["checkin"])
+        if "checkout" in params:
+            self.checkout = str(params["checkout"])
+        if "additionalneeds" in params:
+            self.additionalneeds = str(params["additionalneeds"])
 
     def build(self) -> dict:
+        """Return the final booking payload"""
         return {
             "firstname": self.firstname,
             "lastname": self.lastname,
