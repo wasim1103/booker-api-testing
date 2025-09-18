@@ -12,25 +12,24 @@ Features:
 ✅ HTML and JUnit style reports for CI/CD integration
 
 Project Structure:
-
 booker-api-testing/
 ├── src/
-│   ├── tests/
-│   │   ├── api/
-│   │   │   ├── booking/
-│   │   │   │   ├── test_01_get_booking.py     # Tests for GET bookings with filters
-│   │   │   │   ├── test_02_update_booking.py  # Tests for PATCH/PUT booking updates
-│   │   │   │   ├── test_03_e2e_booking.py     # End-to-end booking lifecycle tests
-│   │   │   └── integration/
-│   │   │       └── test_booking_e2e.py        # Integration/E2E scenarios
-│   │   └── utils/
-│   │       ├── api_client.py                  # API client wrapper
-│   │       ├── booking_helper.py              # Helper functions for validation
-│   │       ├── booking_data_builder.py        # Dynamic booking payload generator
-│   │       └── config.py                      # Configuration (base URL, etc.)
-├── requirements.txt                           # Python dependencies
-├── pytest.ini                                # Pytest configuration
-└── README.md                                 # Project documentation
+│ ├── tests/
+│ │ ├── api/
+│ │ │ ├── booking/
+│ │ │ │ ├── test_01_get_booking.py # Tests for GET bookings with filters
+│ │ │ │ ├── test_02_update_booking.py # Tests for PATCH/PUT booking updates
+│ │ │ │ ├── test_03_e2e_booking.py # End-to-end booking lifecycle tests
+│ │ │ └── integration/
+│ │ │ └── test_booking_e2e.py # Integration/E2E scenarios
+│ │ └── utils/
+│ │ ├── api_client.py # API client wrapper
+│ │ ├── booking_helper.py # Helper functions for validation
+│ │ ├── booking_data_builder.py # Dynamic booking payload generator
+│ │ └── config.py # Configuration (base URL, etc.)
+├── requirements.txt # Python dependencies
+├── pytest.ini # Pytest configuration
+└── README.md # Project documentation
 
 
 
