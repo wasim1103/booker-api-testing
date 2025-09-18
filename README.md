@@ -11,7 +11,7 @@ Features:
 ✅ End-to-end lifecycle validation (Create → Update → Verify → Delete)
 ✅ HTML and JUnit style reports for CI/CD integration
 
-Project Structure:
+## Project Structure
 booker-api-testing/
 ├── src/
 │ ├── tests/
