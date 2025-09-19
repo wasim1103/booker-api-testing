@@ -99,14 +99,52 @@ def test_bulk_booking_operations(api_client):
     pass
 
 # -----------------------------
-# E2E Test: Cross-endpoint consistency verification (planned)
+# E2E Test: Cross-endpoint consistency verification
 # -----------------------------
 @pytest.mark.e2e
-@pytest.mark.skip(reason="Cross-endpoint consistency verification - to be implemented")
-def test_cross_endpoint_consistency(api_client):
+def test_cross_endpoint_consistency(api_client, create_e2e_booking):
     """
-    Planned:
-    • Verify booking details from multiple endpoints remain consistent
-    • Example: booking details from /booking/{id} should match filtered results from /booking
+    Cross-endpoint consistency:
+    Verify that booking details from /booking/{id} match results from /booking (filtered)
     """
-    pass
+    # -------------------------------
+    # 1. Retrieve booking info from creation response
+    # -------------------------------
+    booking_id = create_e2e_booking["bookingid"]
+    booking_data = create_e2e_booking["data"]
+    print(f"\nBooking created: ID={booking_id}, payload={booking_data}")
+
+    # -------------------------------
+    # 2. GET booking by ID
+    # -------------------------------
+    resp_by_id = api_client.get(f"/booking/{booking_id}")
+    resp_by_id.raise_for_status()
+    booking_by_id = resp_by_id.json()
+    print(f"Booking fetched by ID: {booking_by_id}")
+
+    # -------------------------------
+    # 3. GET booking via /booking with filter
+    # -------------------------------
+    filters = {"firstname": booking_data["firstname"]}
+    booking_ids_filtered = get_bookings(api_client, filters)
+    assert booking_id in booking_ids_filtered, (
+        f"Booking {booking_id} not found using filters {filters}"
+    )
+
+    # Fetch full data for first matching booking (could extend to all)
+    # Assuming get_bookings returns only booking IDs
+    resp_filtered = api_client.get(f"/booking/{booking_id}")
+    resp_filtered.raise_for_status()
+    booking_filtered = resp_filtered.json()
+    print(f"Booking fetched via filter: {booking_filtered}")
+
+    # -------------------------------
+    # 4. Validate consistency
+    # -------------------------------
+    validate_booking_by_id(
+        api_client,
+        {"bookingid": booking_id, "data": booking_data},
+        filters
+    )
+
+    print(f"Cross-endpoint consistency validated for booking {booking_id}")
