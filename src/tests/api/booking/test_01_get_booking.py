@@ -1,6 +1,9 @@
 import pytest
 import json
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 from tests.api.utils.booking_helper import find_matching_bookings, validate_booking_by_id, get_bookings
 
 # Load test data's from JSON
@@ -32,15 +35,19 @@ def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_bookin
     ids = [item["bookingid"] for item in booking_ids]
 
     # Check that every booking ID is an integer
-    assert all(isinstance(bid, int)
-               for bid in ids), f"Not all booking IDs are numbers: {ids}"
+    assert all(isinstance(bid, int) for bid in ids), f"Not all booking IDs are numbers: {ids}"
 
     # Print booking IDs for traceability/debugging
-    print(f"Found booking IDs: {ids}")
+    #logger.info(f"Found booking IDs: {ids}")
 
     # Verify that the dynamically created booking(s) exist in the retrieved IDs
     for booking in create_test_booking:
-        assert booking["bookingid"] in ids
+        booking_id = booking["bookingid"]
+        if booking_id in ids:
+            logger.info(f"Booking ID {booking_id} found in API response.")
+        else:
+            logger.error(f"Booking ID {booking_id} NOT found in API response!")
+        assert booking_id in ids, f"Booking ID {booking_id} missing from API response {ids}"
 
 
 # -----------------------------
@@ -53,9 +60,6 @@ def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_bookin
 )
 def test_by_applying_single_filters(api_client, create_test_booking, data):
     """Test Individual filters by applying firstname, lastname, checkin, checkout"""
-    # Loop through dynamically created bookings for this test session
-    # for booking in create_test_booking:
-    #     booking_id = booking["bookingid"]
     booking_to_test = find_matching_bookings(create_test_booking, data["params"])
     booking_id = booking_to_test["bookingid"]
 
@@ -107,15 +111,14 @@ def test_Validate_error_handling(api_client, data):
     # Send GET request with invalid filter parameters
     response = api_client.get("/booking", params=data["params"])
 
-    # Print request and response for traceability
-    print(f"\nRequest: GET /booking, params={data['params']}")
-    print(f"Response status: {response.status_code}")
+    # Log request and response for traceability
+    logger.info(f"Request: GET /booking, params={data['params']}")
+    logger.info(f"Response status: {response.status_code}")
 
     # Typical invalid filter requests should fail with a client error
     # (most APIs return 400 Bad Request, but 404/422 are also acceptable depending on backend)
-    assert response.status_code in [400, 422], (
-        f"Unexpected status code {response.status_code} for params {data['params']}"
-    )
+    assert response.status_code in [400, 422],f"Unexpected status code {response.status_code} for params {data['params']}"
+    
 
 
 # -----------------------------
@@ -131,11 +134,10 @@ def test_get_booking_performance(api_client):
     # Calculate elapsed time for the request
     elapsed = time.time() - start
 
-    # Print status and timing for traceability
-    print("\nPerformance test: GET /booking (no filters)")
-    print(
-        f"Response status: {response.status_code}, Time taken: {elapsed:.2f}s")
-
+    # Log status and timing for traceability
+    logger.info("Performance test: GET /booking (no filters)")
+    logger.info("Response status: %s, Time taken: %.2fs", response.status_code, elapsed)
+    
     # Assert API returns 200 OK
     assert response.status_code == 200
 

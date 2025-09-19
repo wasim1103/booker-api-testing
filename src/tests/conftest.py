@@ -1,6 +1,7 @@
 import pytest
 import json
 import time
+import logging
 from tests.api.utils.api_client import ApiClient
 from tests.api.utils.auth_helper import AuthenticationHelper
 from tests.api.utils.booking_data_builder import BookingDataBuilder
@@ -61,7 +62,14 @@ def create_test_booking(booking_registry):
     """Alias to booking_registry for backward compatibility."""
     return booking_registry
     
-
+@pytest.fixture(scope="session", autouse=True)
+def configure_logging():
+    """Configure logging for the whole test session"""
+    logging.basicConfig(
+        level=logging.INFO,  # or DEBUG for more details
+        format="%(asctime)s [%(levelname)s] %(message)s",
+    )
+    logging.getLogger().setLevel(logging.INFO)
 
 @pytest.fixture(scope="session")
 def booking_registry(api_client, auth_token):

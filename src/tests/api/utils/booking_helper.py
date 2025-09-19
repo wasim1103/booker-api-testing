@@ -1,7 +1,9 @@
 from datetime import datetime
 import json
 import time
+import logging
 
+logger = logging.getLogger(__name__)
 
 def validate_booking_by_id(api_client, booking_data, expected_filters):
     """
@@ -12,7 +14,7 @@ def validate_booking_by_id(api_client, booking_data, expected_filters):
     response = api_client.get(f"/booking/{booking_id}")
     assert response.status_code == 200, f"Booking {booking_id} not found"
     booking = response.json()
-    print(f"\nBooking retrieved successfully: {json.dumps(booking, indent=2)}")
+    logger.info("Booking retrieved successfully: %s", json.dumps(booking, indent=2))
 
     for key, expected_value in expected_filters.items():
         if key in ["checkin", "checkout"]:
@@ -27,7 +29,7 @@ def validate_booking_by_id(api_client, booking_data, expected_filters):
         elif key in ["firstname", "lastname"]:
             assert booking[key] == expected_value, f"{key} does not match expected value"
 
-    print(f"\nBooking {booking_id} validated successfully against filters")
+    logger.info("Booking %s validated successfully against filters", booking_id)
     return booking
 
 
@@ -54,11 +56,11 @@ def get_bookings(api_client, filters=None, retries=3, wait=2):
             print(f"\nRetrieved {len(booking_ids)} booking(s) with filters {params}: {booking_ids}")
             return booking_ids
 
-        print(f"No bookings found for filters {params}. Retry {attempt}/{retries} after {wait}s...")
+        logger.warning("No bookings found for filters %s. Retry %d/%d after %ss...", params, attempt, retries, wait,)
         time.sleep(wait)
 
     # Return whatever is retrieved after retries (could be empty)
-    print(f"\nAfter {retries} retries, bookings found: {booking_ids}")
+    logger.error("After %d retries, bookings found: %s", retries, booking_ids)
     return booking_ids
 
 
