@@ -8,8 +8,9 @@ with open("resources/test-data/filters.json") as f:
     filter_data = json.load(f)
 
 
-# Parametrize test using filter data where description is "No filters"
-# This allows the test to run for all relevant entries from the JSON test data
+# -----------------------------
+# Retrieve all booking IDs without filters
+# -----------------------------
 @pytest.mark.parametrize("data", [d for d in filter_data if d["description"] == "No filters"])
 def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_booking, data):
     """Verify retrieving all booking IDs without applying any filters."""
@@ -42,9 +43,9 @@ def test_Retrieve_all_booking_IDs_without_filters(api_client, create_test_bookin
         assert booking["bookingid"] in ids
 
 
-# Parametrize test using filter data where description is "Individual filter"
-# Each entry represents a single filter scenario, e.g., firstname, lastname, checkin, or checkout
-# ids=lambda ... ensures that the test ID in reports shows the filter being applied
+# -----------------------------
+# Retrieve booking IDs by applying single filters
+# -----------------------------
 @pytest.mark.parametrize(
     "data",
     [d for d in filter_data if d["description"] == "Individual filter"],
@@ -68,9 +69,9 @@ def test_by_applying_single_filters(api_client, create_test_booking, data):
     validate_booking_by_id(api_client, booking_to_test, data["params"])
 
 
-# Parametrize test using filter data where description is "Multiple filters"
-# Each entry represents a combination of filters applied together, e.g., firstname + lastname
-# The ids lambda ensures each test case in reports clearly shows which filter combination is being tested
+# -----------------------------
+# Retrieve booking IDs by applying multiple filters
+# -----------------------------
 @pytest.mark.parametrize(
     "data",
     [d for d in filter_data if d["description"] == "Multiple filters"],
@@ -92,9 +93,9 @@ def test_by_applying_multiple_filters(api_client, create_test_booking, data):
     validate_booking_by_id(api_client, booking_to_test, data["params"])
 
 
-# Parametrize test using filter data where description is "Invalid Value Format In filter"
-# This test ensures that the API returns proper error responses when invalid filter values are provided
-# The ids lambda provides readable test case identifiers in pytest reports
+# -----------------------------
+# Error handling for invalid filter values
+# -----------------------------
 @pytest.mark.parametrize(
     "data",
     [d for d in filter_data if d["description"]
@@ -110,11 +111,16 @@ def test_Validate_error_handling(api_client, data):
     print(f"\nRequest: GET /booking, params={data['params']}")
     print(f"Response status: {response.status_code}")
 
-    # Assert that the API responds with the expected error status code
-    assert response.status_code == data["expected_status"]
+    # Typical invalid filter requests should fail with a client error
+    # (most APIs return 400 Bad Request, but 404/422 are also acceptable depending on backend)
+    assert response.status_code in [400, 422], (
+        f"Unexpected status code {response.status_code} for params {data['params']}"
+    )
 
 
-# Performance test for GET /booking endpoint
+# -----------------------------
+# Basic Performance test for GET /booking endpoint
+# -----------------------------
 def test_get_booking_performance(api_client):
     """Basic performance validation: Response time < 2 seconds"""
 

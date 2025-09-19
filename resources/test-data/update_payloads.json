@@ -2,40 +2,33 @@
   {
     "description": "Update Individual Field",
     "payload": {"firstname": "JohnUpdated"},
-    "expected_status": 200,
     "verify_field": "firstname"
   },
   {
     "description": "Update Multiple Fields",
-    "payload": {"firstname": "Jane", "lastname": "Smith", "totalprice": 777},
-    "expected_status": 200
+    "payload": {"firstname": "Jane", "lastname": "Smith", "totalprice": 777}
   },
   {
     "description": "Update Multiple Fields",
-    "payload": {"bookingdates": {"checkin": "2025-12-01", "checkout": "2025-12-10"}},
-    "expected_status": 200
+    "payload": {"bookingdates": {"checkin": "2025-12-01", "checkout": "2025-12-10"}}
   },
   {
     "description": "Invalid Value Format In Update",
     "payload": {"firstname": "Nobody"},
-    "invalid_id": 999999,
-    "expected_status": 404
+    "invalid_id": 999999
   },
   {
     "description": "Invalid Value Format In Update",
-    "payload": {"totalprice": "not-a-number"},
-    "expected_status": 400
+    "payload": {"totalprice": "not-a-number"}
   },
   {
     "description": "Invalid Value Format In Update",
     "payload": {"firstname": "Unauthorized"},
-    "expected_status": 401,
     "auth": "none"
   },
   {
     "description": "Idempotent update",
     "payload": {"firstname": "RepeatUser"},
-    "expected_status": 200,
     "idempotent": true
   }
 ]

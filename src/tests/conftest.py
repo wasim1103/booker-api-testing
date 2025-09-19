@@ -58,44 +58,9 @@ def check_health(config):
 
 @pytest.fixture(scope="session")
 def create_test_booking(booking_registry):
-    """
-    Creates a single booking dynamically with default BookingDataBuilder values.
-    Returns a list with created booking info: booking ID and full payload.
-    """
-
     """Alias to booking_registry for backward compatibility."""
     return booking_registry
-    # # Build booking payload using defaults
-    # booking_data = BookingDataBuilder().build()
-
-    # # Create booking on server
-    # response = api_client.post("/booking", json=booking_data)
-    # response.raise_for_status()
-
-    # # Extract booking ID from API response
-    # booking_id = response.json()["bookingid"]
-
-    # # Store created booking info (ID + original payload) for test usage
-    # created_bookings = [{"bookingid": booking_id, "data": booking_data}]
-
-    # # Log created booking details for debugging / test traceability
-    # print(f"\nBooking created: ID={booking_id}, payload={booking_data}")
     
-    # # Yield to the test
-    # yield created_bookings
-
-    ############################################
-
-    # # Cleanup: delete booking after test
-    # delete_response = api_client.delete(
-    #     f"/booking/{booking_id}",
-    #     headers={"Cookie": f"token={auth_token}"}
-    # )
-    # if delete_response.status_code == 201:
-    #     print(f"Booking {booking_id} deleted successfully after test.")
-    # else:
-    #     print(f"Failed to delete booking {booking_id}. Status: {delete_response.status_code}, Response: {delete_response.text}")
-
 
 
 @pytest.fixture(scope="session")

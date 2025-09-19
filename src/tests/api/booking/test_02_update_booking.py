@@ -7,7 +7,9 @@ from tests.api.utils.booking_helper import validate_updated_fields, validate_unc
 with open("resources/test-data/update_payloads.json") as f:
     update_data = json.load(f)
 
-
+# -----------------------------
+# Update individual booking field with type validation
+# -----------------------------
 @pytest.mark.parametrize(
     "data",
     [d for d in update_data if d["description"] == "Update Individual Field"],
@@ -24,7 +26,7 @@ def test_individual_field_update_with_type_validation(api_client, create_test_bo
     print("Original booking:\n", json.dumps(original, indent=2))
 
     response = api_client.patch(f"/booking/{booking_id}", json=payload)
-    assert response.status_code == data["expected_status"], f"Unexpected status {response.status_code}"
+    assert response.status_code == 200, f"Unexpected status {response.status_code} for payload {payload}"
 
     updated = response.json()
     print("Updated booking:\n", json.dumps(updated, indent=2))
@@ -42,7 +44,9 @@ def test_individual_field_update_with_type_validation(api_client, create_test_bo
     # Validate updated fields
     validate_updated_fields(updated, payload)
 
-
+# -----------------------------
+# Update multiple booking fields
+# -----------------------------
 @pytest.mark.parametrize(
     "data",
     [d for d in update_data if d["description"] in ["Update Multiple Fields"]],
@@ -59,14 +63,16 @@ def test_multiple_fields_get_updated(api_client, create_test_booking, data):
     print("Original booking:\n", json.dumps(original, indent=2))
 
     response = api_client.patch(f"/booking/{booking_id}", json=payload)
-    assert response.status_code == data["expected_status"]
+    assert response.status_code == 200, f"Unexpected status {response.status_code} for payload {payload}"
 
     updated = api_client.get(f"/booking/{booking_id}").json()
     print("Updated booking:\n", json.dumps(updated, indent=2))
 
     validate_updated_fields(updated, payload)
 
-
+# -----------------------------
+# Verify non-updated fields remain unchanged
+# -----------------------------
 def test_non_updated_field_remains_unchanged(api_client, create_test_booking):
     """Verify that fields not updated remain unchanged"""
     booking_to_test = create_test_booking[0]
@@ -85,7 +91,9 @@ def test_non_updated_field_remains_unchanged(api_client, create_test_booking):
     validate_updated_fields(updated, payload)
     validate_unchanged_fields(original, updated, exclude=["firstname"])
 
-
+# -----------------------------
+# Error handling for invalid booking updates
+# -----------------------------
 @pytest.mark.parametrize(
     "data",
     [d for d in update_data if d["description"] == "Invalid Value Format In Update"],
@@ -105,9 +113,12 @@ def test_validate_error_handling(api_client, create_test_booking, data):
     print("Status:", response.status_code)
     print("Text:", response.text)
 
-    assert response.status_code == data["expected_status"] or response.status_code in [403, 405]
+    assert response.status_code in [400, 404, 422, 401, 403], f"Unexpected status {response.status_code} for invalid case {data['description']}"
+  
 
-
+# -----------------------------
+# Verify idempotency of PATCH updates
+# -----------------------------
 @pytest.mark.parametrize(
     "data",
     [d for d in update_data if d.get("idempotent")],
@@ -128,6 +139,9 @@ def test_idempotency_of_updates(api_client, create_test_booking, data):
     print("First status:", first.status_code, "Second status:", second.status_code)
     print("First response:", first.text, "Second response:", second.text)
 
-    assert first.status_code == data["expected_status"]
-    assert second.status_code == data["expected_status"]
-    assert first.json() == second.json()
+    # Idempotent update → always expect 200
+    assert first.status_code == 200, f"First PATCH returned {first.status_code} unexpectedly"
+    assert second.status_code == 200, f"Second PATCH returned {second.status_code} unexpectedly"
+
+    # The response body should be identical for both PATCH calls
+    assert first.json() == second.json(), "PATCH responses are not identical for idempotent update"

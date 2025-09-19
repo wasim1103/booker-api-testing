@@ -4,7 +4,9 @@ import json
 from tests.api.utils.booking_helper import validate_booking_by_id, get_bookings
 from tests.api.utils.booking_data_builder import BookingDataBuilder
 
-
+# -----------------------------
+# Fixture: Create a single booking for E2E tests
+# -----------------------------
 @pytest.fixture(scope="function")
 def create_e2e_booking(api_client):
     """Fixture to create a single booking for E2E tests"""
@@ -23,11 +25,12 @@ def create_e2e_booking(api_client):
     # Cleanup after test
     api_client.delete(f"/booking/{booking_id}")
 
-
+# -----------------------------
+# E2E Test: Complete booking lifecycle
+# -----------------------------
 @pytest.mark.e2e
 def test_e2e_booking_lifecycle(api_client):
     """Complete booking lifecycle: Create → Update → Verify → Delete"""
-    from tests.api.utils.booking_data_builder import BookingDataBuilder
 
     # -------------------------------
     # 1. CREATE
@@ -81,7 +84,9 @@ def test_e2e_booking_lifecycle(api_client):
     assert final_resp.status_code == 404, f"Booking {booking_id} still exists after deletion"
 
 
-
+# -----------------------------
+# E2E Test: Bulk booking operations (planned)
+# -----------------------------
 @pytest.mark.e2e
 @pytest.mark.skip(reason="Bulk operations scenario - to be implemented")
 def test_bulk_booking_operations(api_client):
@@ -93,7 +98,9 @@ def test_bulk_booking_operations(api_client):
     """
     pass
 
-
+# -----------------------------
+# E2E Test: Cross-endpoint consistency verification (planned)
+# -----------------------------
 @pytest.mark.e2e
 @pytest.mark.skip(reason="Cross-endpoint consistency verification - to be implemented")
 def test_cross_endpoint_consistency(api_client):
