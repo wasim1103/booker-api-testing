@@ -36,7 +36,7 @@ booker-api-testing/
 │   │   │   ├── booking/
 │   │   │   │   ├── test_01_get_booking.py      # Tests for GET bookings with filters
 │   │   │   │   ├── test_02_update_booking.py   # Tests for PATCH/PUT booking updates
-│   │   │   │   ├── test_03_e2e_booking.py      # End-to-end booking lifecycle tests
+│   │   │   │   ├── test_03_delete_booking.py      # End-to-end booking lifecycle tests
 │   │   │   └── integration/
 │   │   │       └── test_booking_e2e.py         # Integration/E2E scenarios
 │   │   └── utils/
