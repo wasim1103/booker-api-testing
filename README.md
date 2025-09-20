@@ -30,13 +30,14 @@ Ensuring the API behaves as expected in different conditions.
 
 ```text
 booker-api-testing/
+|
 ├── src/
 │   ├── tests/
 │   │   ├── api/
 │   │   │   ├── booking/
 │   │   │   │   ├── test_01_get_booking.py      # Tests for GET bookings with filters
 │   │   │   │   ├── test_02_update_booking.py   # Tests for PATCH/PUT booking updates
-│   │   │   │   ├── test_03_e2e_booking.py      # End-to-end booking lifecycle tests
+│   │   │   │   ├── test_03_delete_booking.py      # End-to-end booking lifecycle tests
 │   │   │   └── integration/
 │   │   │       └── test_booking_e2e.py         # Integration/E2E scenarios
 │   │   └── utils/
@@ -57,7 +58,6 @@ cd booker-api-testing
 
 2. Create Virtual Environment
 python -m venv venv
-source venv/bin/activate   # Mac/Linux
 venv\Scripts\activate      # Windows
 
 3. Install Dependencies

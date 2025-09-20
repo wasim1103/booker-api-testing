@@ -53,7 +53,7 @@ def get_bookings(api_client, filters=None, retries=3, wait=2):
         booking_ids = [b["bookingid"] for b in booking_list]
 
         if booking_ids:
-            print(f"\nRetrieved {len(booking_ids)} booking(s) with filters {params}: {booking_ids}")
+            logger.info("Retrieved %d booking(s) with filters %s: %s", len(booking_ids), params, booking_ids,)
             return booking_ids
 
         logger.warning("No bookings found for filters %s. Retry %d/%d after %ss...", params, attempt, retries, wait,)

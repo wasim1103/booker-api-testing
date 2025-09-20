@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 # -----------------------------
 # Fixture: Create a single booking for E2E tests
 # -----------------------------
+
+
 @pytest.fixture(scope="function")
 def create_e2e_booking(api_client):
     """Fixture to create a single booking for E2E tests"""
@@ -33,7 +35,6 @@ def create_e2e_booking(api_client):
 # -----------------------------
 # E2E Test: Complete booking lifecycle
 # -----------------------------
-@pytest.mark.e2e
 def test_e2e_booking_lifecycle(api_client):
     """Complete booking lifecycle: Create → Update → Verify → Delete"""
 
@@ -46,7 +47,8 @@ def test_e2e_booking_lifecycle(api_client):
     response.raise_for_status()
     booking_id = response.json()["bookingid"]
 
-    logger.info("Booking created | ID=%s | Payload:\n%s", booking_id, json.dumps(booking_data, indent=2))
+    logger.info("Booking created | ID=%s | Payload:\n%s",
+                booking_id, json.dumps(booking_data, indent=2))
 
     # -------------------------------
     # 2. VERIFY VIA SINGLE FILTER (firstname)
@@ -58,21 +60,25 @@ def test_e2e_booking_lifecycle(api_client):
     # -------------------------------
     # 3. FETCH BY ID & VALIDATE
     # -------------------------------
-    validate_booking_by_id(api_client, {"bookingid": booking_id, "data": booking_data}, filters)
+    validate_booking_by_id(
+        api_client, {"bookingid": booking_id, "data": booking_data}, filters)
 
     # -------------------------------
     # 4. UPDATE
     # -------------------------------
     updated_payload = {"firstname": "UpdatedName"}
-    update_resp = api_client.patch(f"/booking/{booking_id}", json=updated_payload)
+    update_resp = api_client.patch(
+        f"/booking/{booking_id}", json=updated_payload)
     update_resp.raise_for_status()
-    logger.info("Booking updated successfully | ID=%s | Updated Payload:\n%s", booking_id, json.dumps(updated_payload, indent=2))
+    logger.info("Booking updated successfully | ID=%s | Updated Payload:\n%s",
+                booking_id, json.dumps(updated_payload, indent=2))
 
     # Update filters too
     updated_filters = {"firstname": updated_payload["firstname"]}
 
     # Validate updated fields
-    validate_booking_by_id(api_client, {"bookingid": booking_id, "data": updated_payload}, updated_filters)
+    validate_booking_by_id(
+        api_client, {"bookingid": booking_id, "data": updated_payload}, updated_filters)
 
     # -------------------------------
     # 5. DELETE
@@ -87,24 +93,74 @@ def test_e2e_booking_lifecycle(api_client):
 
 
 # -----------------------------
-# E2E Test: Bulk booking operations (planned)
+# E2E Test: Bulk booking operations
 # -----------------------------
-@pytest.mark.e2e
-@pytest.mark.skip(reason="Bulk operations scenario - to be implemented")
+
+
 def test_bulk_booking_operations(api_client):
     """
-    Planned:
+    Bulk operations scenario:
     • Create multiple bookings
     • Apply filters to retrieve subset
     • Update filtered results and validate
     """
-    pass
+    created_bookings = []
+
+    # -------------------------------
+    # 1. Create multiple bookings
+    # -------------------------------
+    for _ in range(5):
+        builder = BookingDataBuilder()
+        booking_data = builder.build()
+        response = api_client.post("/booking", json=booking_data)
+        response.raise_for_status()
+        booking_id = response.json()["bookingid"]
+
+        created_bookings.append({"id": booking_id, "data": booking_data})
+        logger.info(
+            "Booking created: ID=%s, payload=%s",
+            booking_id,
+            json.dumps(booking_data, indent=2),
+        )
+
+    # -------------------------------
+    # 2. Filter, update & validate each booking
+    # -------------------------------
+    for b in created_bookings:
+        filters = {"firstname": b["data"]["firstname"]}
+        filtered_ids = get_bookings(api_client, filters)
+
+        logger.info("Filtered bookings by %s: %s", filters, filtered_ids)
+        assert b["id"] in filtered_ids, \
+            f"Booking {b['id']} not found in filtered results {filtered_ids}"
+
+        updated_payload = {"lastname": "BulkUpdated"}
+        resp_update = api_client.patch(f"/booking/{b['id']}", json=updated_payload)
+        assert resp_update.status_code == 200, \
+            f"Unexpected status {resp_update.status_code} for booking {b['id']}"
+
+        # Validate booking after update
+        validate_booking_by_id(
+            api_client,
+            {"bookingid": b["id"], "data": {**b["data"], **updated_payload}},
+            filters,
+        )
+        logger.info("Booking %s updated successfully with %s", b["id"], updated_payload)
+
+    # -------------------------------
+    # 3. Cleanup all created bookings
+    # -------------------------------
+    for b in created_bookings:
+        resp_del = api_client.delete(f"/booking/{b['id']}")
+        assert resp_del.status_code in [200, 201, 204], \
+            f"Unexpected delete status {resp_del.status_code} for booking {b['id']}"
+        logger.info("Booking %s deleted successfully", b["id"])
+
 
 
 # -----------------------------
 # E2E Test: Cross-endpoint consistency verification
 # -----------------------------
-@pytest.mark.e2e
 def test_cross_endpoint_consistency(api_client, create_e2e_booking):
     """
     Cross-endpoint consistency:
@@ -140,9 +196,10 @@ def test_cross_endpoint_consistency(api_client, create_e2e_booking):
         booking_id, json.dumps(booking_filtered, indent=2)
     )
 
-
     # -------------------------------
     # 3. Validate consistency
     # -------------------------------
-    validate_booking_by_id(api_client, {"bookingid": booking_id, "data": booking_data}, filters)
-    logger.info("Cross-endpoint consistency validated for booking | ID=%s", booking_id)
+    validate_booking_by_id(
+        api_client, {"bookingid": booking_id, "data": booking_data}, filters)
+    logger.info(
+        "Cross-endpoint consistency validated for booking | ID=%s", booking_id)
