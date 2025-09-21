@@ -4,7 +4,14 @@ import random
 
 faker = Faker()
 
+"""
+BookingDataBuilder class
 
+Generates dynamic booking payloads for testing.
+- Uses Faker to create realistic defaults (names, dates, prices).
+- Supports overriding fields with custom params (e.g., from filters.json).
+- Provides `build()` to return final booking dictionary.
+"""
 class BookingDataBuilder:
     def __init__(self, params: dict = None):
         """

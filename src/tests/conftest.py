@@ -11,7 +11,19 @@ from tests.api.utils.api_client import ApiClient
 from tests.api.utils.auth_helper import AuthenticationHelper
 from tests.api.utils.booking_data_builder import BookingDataBuilder
 
+"""
+Pytest fixtures and hooks for booking API tests
 
+- config → load test configuration from JSON
+- auth_token → fetch session-wide authentication token
+- api_client → provide ApiClient with base URL and token
+- check_health → verify API health (/ping) before tests
+- configure_logging → set up logging for test session
+- booking_registry → create/delete test bookings from filters.json
+- create_test_booking → alias to booking_registry
+- pytest_runtest_logreport → collect pass/fail/skip results
+- pytest_html_results_summary → embed pie chart in pytest-html report
+"""
 @pytest.fixture(scope="session")
 def config():
     """

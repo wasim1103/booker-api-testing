@@ -10,7 +10,6 @@ It covers:
 Ensuring the API behaves as expected in different conditions.
 
 
-
 ✨ Features
 - ✅ API Health Checks – Validate the availability of endpoints before running tests.
 - ✅ Booking Endpoint Tests (CRUD) – Covers Create, Read, Update, Delete operations for /booking.
@@ -96,6 +95,6 @@ Test Reports-
 - HTML Report: Generated at reports/booker-api-testing-report.html
 
 Notes:
-Default base URL: https://restful-booker.herokuapp.com (configurable in config.py)
-Supports both local and CI/CD execution
-Retry mechanisms included for flaky tests and booking creation propagation delays
+=> Default base URL: https://restful-booker.herokuapp.com (configurable in config.py)
+=> Supports both local and CI/CD execution
+=> Retry mechanisms included for flaky tests and booking creation propagation delays

@@ -5,6 +5,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+"""
+Booking validation utilities
+
+Provides helper functions for testing booking API:
+- validate_booking_by_id → fetch & compare booking against expected filters
+- get_bookings → retrieve booking IDs with optional filters & retries
+- validate_updated_fields → ensure payload changes applied correctly
+- validate_unchanged_fields → ensure fields not meant to change remain same
+- wait_for_booking → poll until booking exists or timeout
+- find_matching_bookings → (stub for filtering registry entries)
+"""
 def validate_booking_by_id(api_client, booking_data, expected_filters):
     """
     Retrieve booking by ID and validate fields against expected filters.

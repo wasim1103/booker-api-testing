@@ -13,6 +13,8 @@ with open("resources/test-data/update_payloads.json") as f:
 # -----------------------------
 # Update individual booking field with type validation
 # -----------------------------
+
+
 @pytest.mark.parametrize(
     "data",
     [d for d in update_data if d["description"] == "Update Individual Field"],
@@ -48,6 +50,8 @@ def test_individual_field_update_with_type_validation(api_client, create_test_bo
 # -----------------------------
 # Update multiple booking fields
 # -----------------------------
+
+
 @pytest.mark.parametrize(
     "data",
     [d for d in update_data if d["description"] in ["Update Multiple Fields"]],
@@ -73,6 +77,8 @@ def test_multiple_fields_get_updated(api_client, create_test_booking, data):
 # -----------------------------
 # Verify non-updated fields remain unchanged
 # -----------------------------
+
+
 def test_non_updated_field_remains_unchanged(api_client, create_test_booking):
     """Verify that fields not updated remain unchanged"""
     booking_to_test = create_test_booking[0]
@@ -94,6 +100,8 @@ def test_non_updated_field_remains_unchanged(api_client, create_test_booking):
 # -----------------------------
 # Error handling for invalid booking updates
 # -----------------------------
+
+
 @pytest.mark.parametrize(
     "data",
     [d for d in update_data if d["description"]
@@ -109,14 +117,16 @@ def test_validate_error_handling(api_client, create_test_booking, data):
         "auth") != "none" else api_client.__class__(api_client.base_url)
 
     response = client.patch(f"/booking/{endpoint_id}", json=data["payload"])
-    logger.info("Booking %s | Payload: %s | Status: %s", endpoint_id, data["payload"], response.status_code)
+    logger.info("Booking %s | Payload: %s | Status: %s",
+                endpoint_id, data["payload"], response.status_code)
     try:
         logger.info("Response:\n%s", json.dumps(response.json(), indent=2))
     except ValueError:
         # fallback if response is not JSON
         logger.info("Response text: %s", response.text)
-    
-    assert response.status_code in [400, 404, 422, 401, 403], f"Unexpected status {response.status_code} for invalid case {data['description']}"
+
+    assert response.status_code in [
+        400, 404, 422, 401, 403], f"Unexpected status {response.status_code} for invalid case {data['description']}"
 
 
 # -----------------------------
@@ -137,7 +147,7 @@ def test_idempotency_of_updates(api_client, create_test_booking, data):
     second = api_client.patch(f"/booking/{booking_id}", json=payload)
 
     logger.info("Booking %s | Payload: %s | Statuses: [%s, %s]",
-            booking_id, payload, first.status_code, second.status_code)
+                booking_id, payload, first.status_code, second.status_code)
     logger.info("First response:\n%s", json.dumps(first.json(), indent=2))
     logger.info("Second response:\n%s", json.dumps(second.json(), indent=2))
 
