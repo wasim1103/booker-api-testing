@@ -2,6 +2,11 @@ import pytest
 import json
 import time
 import logging
+
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+
 from tests.api.utils.api_client import ApiClient
 from tests.api.utils.auth_helper import AuthenticationHelper
 from tests.api.utils.booking_data_builder import BookingDataBuilder
@@ -114,3 +119,41 @@ def booking_registry(api_client, auth_token):
                 f"Failed to delete booking {booking_id}. "
                 f"Status: {delete_response.status_code}, Response: {delete_response.text}"
             )
+
+
+# Track results
+results_summary = {"passed": 0, "failed": 0, "skipped": 0}
+
+
+def pytest_runtest_logreport(report):
+    """Hook to collect test results"""
+    if report.when == "call":
+        if report.passed:
+            results_summary["passed"] += 1
+        elif report.failed:
+            results_summary["failed"] += 1
+    elif report.skipped:
+        results_summary["skipped"] += 1
+
+
+def pytest_html_results_summary(prefix, summary, postfix):
+    """Hook to add pie chart to pytest-html report"""
+    # Prepare pie chart
+    labels = list(results_summary.keys())
+    sizes = list(results_summary.values())
+    colors = ["#28a745", "#dc3545", "#ffc107"]  # green, red, yellow
+
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct="%1.1f%%", colors=colors, startangle=90)
+    ax.axis("equal")  # Equal aspect ratio
+
+    # Save to memory
+    buf = BytesIO()
+    plt.savefig(buf, format="png")
+    buf.seek(0)
+    encoded = base64.b64encode(buf.read()).decode("utf-8")
+    buf.close()
+
+    # Embed into report
+    html = f'<div><h3>📊 Test Results Summary</h3><img src="data:image/png;base64,{encoded}" /></div>'
+    prefix.extend([html])
