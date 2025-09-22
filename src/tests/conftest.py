@@ -33,6 +33,15 @@ def config():
     with open("resources/config/config.json") as f:
         return json.load(f)
 
+@pytest.fixture(scope="session", autouse=True)
+def configure_logging():
+    """Configure logging for the whole test session"""
+    logging.basicConfig(
+        level=logging.INFO,  # or DEBUG for more details
+        format="%(asctime)s [%(levelname)s] %(message)s",
+    )
+    logging.getLogger().setLevel(logging.INFO)
+
 
 @pytest.fixture(scope="session")
 def auth_token(config):
@@ -74,21 +83,13 @@ def check_health(config):
     pytest.fail("API healthcheck failed after 3 retries!")
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def create_test_booking(booking_registry):
     """Alias to booking_registry for backward compatibility."""
     return booking_registry
     
-@pytest.fixture(scope="session", autouse=True)
-def configure_logging():
-    """Configure logging for the whole test session"""
-    logging.basicConfig(
-        level=logging.INFO,  # or DEBUG for more details
-        format="%(asctime)s [%(levelname)s] %(message)s",
-    )
-    logging.getLogger().setLevel(logging.INFO)
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def booking_registry(api_client, auth_token):
     """
     Creates all valid bookings from filters.json at session start,
