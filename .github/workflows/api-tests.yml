@@ -5,8 +5,8 @@ on:
     branches:
       - main
   pull_request:
-  schedule:
-    - cron: '0 */8 * * *'  # Runs every 8 hours
+  # schedule:
+  #   - cron: '0 */8 * * *'  # Runs every 8 hours
 
 jobs:
   test:
